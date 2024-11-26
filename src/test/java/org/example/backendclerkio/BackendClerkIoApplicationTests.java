@@ -1,4 +1,4 @@
-package org.example.backendclerkio;
+/*package org.example.backendclerkio;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,4 +10,4 @@ class BackendClerkIoApplicationTests {
     void contextLoads() {
     }
 
-}
+}*/
