@@ -1,8 +1,8 @@
 package org.example.backendclerkio.config;
 
 import jakarta.annotation.PostConstruct;
-import org.example.backendclerkio.ProductDTO;
-import org.example.backendclerkio.ProductsResponseDTO;
+import org.example.backendclerkio.dto.ProductDTO;
+import org.example.backendclerkio.dto.ProductsResponseDTO;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.service.ProductService;

@@ -1,7 +1,7 @@
 package org.example.backendclerkio.service;
 
-import org.example.backendclerkio.ProductDTO;
-import org.example.backendclerkio.ProductsResponseDTO;
+import org.example.backendclerkio.dto.ProductDTO;
+import org.example.backendclerkio.dto.ProductsResponseDTO;
 import org.example.backendclerkio.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
