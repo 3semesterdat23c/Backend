@@ -1,11 +1,6 @@
-package org.example.backendclerkio.dto;
+package org.example.backendclerkio;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
