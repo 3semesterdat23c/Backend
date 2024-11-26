@@ -1,4 +1,13 @@
-package org.example.backendclerkio.Controller;
+package org.example.backendclerkio.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@CrossOrigin
 public class UserController {
+
+
+
+
 }
