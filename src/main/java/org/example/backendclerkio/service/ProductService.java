@@ -46,6 +46,12 @@ public class ProductService {
                 .bodyToMono(ProductsResponseDTO.class);
     }
 
+    public Mono<ProductsResponseDTO> getProductsFromAnotherDummy() {
+        return webClient.get()
+                .uri("https://dummyjson.com/products?skip=100&limit=200")
+                .retrieve()
+                .bodyToMono(ProductsResponseDTO.class);
+
     }
 
     public Mono<ProductsResponseDTO> getAllProducts() {
