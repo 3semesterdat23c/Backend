@@ -17,10 +17,15 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     private int productId;
-    private String name;
-    private float price;
-    private String description;
-    private int stock;
+    @Column (name = "product_name")
+    private String productName;
+    @Column (name = "product_price")
+    private float productPrice;
+    @Column (name = "product_description")
+    private String productDescription;
+    @Column (name = ("stock_count"))
+    private int stockCount;
+    @Column (name = "image_string")
     private String imageURL;
 
 
