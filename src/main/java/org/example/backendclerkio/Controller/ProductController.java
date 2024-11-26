@@ -12,26 +12,21 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-
+@RequestMapping("api")
 @RestController
 @CrossOrigin
 public class ProductController {
-
+private final ProductRepository productRepository;
 private final ProductService productService;
 
-public ProductController(ProductService productService) {
+public ProductController(ProductService productService, ProductRepository productRepository) {
     this.productService = productService;
+    this.productRepository = productRepository;
 }
 
-  /*  @GetMapping("/getProducts")
-    public Mono<ProductDTO> getProducts() {
-        return productService.getProductsFromIkea();
-    }*/
-
-
-    @GetMapping("/getProducts")
-    public Mono<ProductsResponseDTO> getProducts() {
-        return productService.getProductsFromDummy();
+    @GetMapping("/products")
+    public List<Product> getAllProducts(){
+    return productRepository.findAll();
     }
 
 }
