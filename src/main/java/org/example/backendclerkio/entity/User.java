@@ -1,4 +1,4 @@
-package org.example.backendclerkio.Entity;
+package org.example.backendclerkio.entity;
 
 import jakarta.persistence.*;
 
