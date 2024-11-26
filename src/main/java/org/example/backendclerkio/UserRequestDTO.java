@@ -1,4 +1,4 @@
-package org.example.backendclerkio.dto;
+package org.example.backendclerkio;
 
 public record UserRequestDTO(String username, String email, String password) {
 }
