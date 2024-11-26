@@ -1,8 +1,8 @@
 package org.example.backendclerkio.service;
 
 import org.example.backendclerkio.config.SecurityConfiguration;
-import org.example.backendclerkio.LoginRequestDTO;
-import org.example.backendclerkio.UserRequestDTO;
+import org.example.backendclerkio.dto.LoginRequestDTO;
+import org.example.backendclerkio.dto.UserRequestDTO;
 import org.example.backendclerkio.entity.User;
 import org.example.backendclerkio.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
