@@ -1,4 +1,4 @@
-package org.example.backendclerkio.model;
+package org.example.backendclerkio.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
