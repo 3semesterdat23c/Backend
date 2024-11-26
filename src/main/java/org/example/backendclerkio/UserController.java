@@ -1,6 +1,5 @@
 package org.example.backendclerkio;
 
-import org.example.backendclerkio.dto.LoginRequestDTO;
 import org.example.backendclerkio.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
