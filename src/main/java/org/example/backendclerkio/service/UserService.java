@@ -24,14 +24,13 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserResponseDTO getUser(int userId) {
+    public Optional<UserResponseDTO> getUser(int userId) {
         return userRepository.findById(userId)
                 .map(user -> new UserResponseDTO(
                         user.getUserId(),
                         user.getFirstName(),
                         user.getLastName(),
-                        user.getUserEmail()))
-                .orElseThrow(() -> new RuntimeException("Student not found with id " + userId));
+                        user.getUserEmail()));
     }
 
     public List<UserResponseDTO> getAllUsers() {
