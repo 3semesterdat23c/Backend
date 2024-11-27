@@ -2,6 +2,7 @@ package org.example.backendclerkio.service;
 
 import org.example.backendclerkio.dto.ProductDTO;
 import org.example.backendclerkio.dto.ProductsResponseDTO;
+import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,18 +22,6 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    /*public Mono<ProductDTO> getProductsFromIkea() {
-        WebClient webClient = WebClient.builder()
-                .baseUrl("https://ikeaapi.p.rapidapi.com/keywordSearch?keyword=chair&countryCode=us&languageCode=en")
-                .defaultHeader("x-rapidapi-key", "a5b84b7c39mshdae1688aabf7a42p196219jsnd2a0bf583d6a")
-                .defaultHeader("x-rapidapi-host", "ikeaapi.p.rapidapi.com")
-                .build();
-
-        return webClient.get()
-                .retrieve()
-                .bodyToMono(ProductDTO.class);
-    }
-*/
 
     public Mono<ProductsResponseDTO> getProductsFromDummy() {
         return webClient.get()
@@ -73,6 +62,10 @@ public class ProductService {
 
                     return combinedResponse;
                 });
+    }
+
+    public List<Product> findAll(){
+        return productRepository.findAll();
     }
 
 }
