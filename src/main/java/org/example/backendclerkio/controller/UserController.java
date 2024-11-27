@@ -42,19 +42,16 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<UserResponseDTO> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserRequestDTO userRequestDTO) {
-        boolean creationSuccesful = userService.registerUser(userRequestDTO);
+    public ResponseEntity<UserResponseDTO> registerUser(@RequestBody UserRequestDTO userRequestDTO) {
+        UserResponseDTO userResponseDTO = userService.registerUser(userRequestDTO);
 
-        if (creationSuccesful) {
-            return ResponseEntity.ok("User created succesfully");
-        } else {
-            return ResponseEntity.status(409).body("User with email already exists");
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
     }
 
     @PostMapping("/login")
