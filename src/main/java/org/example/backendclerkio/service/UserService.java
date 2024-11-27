@@ -3,12 +3,15 @@ package org.example.backendclerkio.service;
 import org.example.backendclerkio.config.SecurityConfiguration;
 import org.example.backendclerkio.dto.LoginRequestDTO;
 import org.example.backendclerkio.dto.UserRequestDTO;
+import org.example.backendclerkio.dto.UserResponseDTO;
 import org.example.backendclerkio.entity.User;
 import org.example.backendclerkio.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -21,6 +24,31 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    public UserResponseDTO getUser(int userId) {
+        return userRepository.findById(userId)
+                .map(user -> new UserResponseDTO(
+                        user.getUserId(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getUserEmail()))
+                .orElseThrow(() -> new RuntimeException("Student not found with id " + userId));
+    }
+
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(user -> new UserResponseDTO(
+                        user.getUserId(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getUserEmail()))
+                .collect(Collectors.toList());
+    }
+
+    public Optional<User> findByUserEmail(String email) {
+        return userRepository.findByUserEmail(email);
+    }
+
     public boolean registerUser(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByUserEmail(userRequestDTO.email())) {
             return false;
@@ -28,7 +56,8 @@ public class UserService {
 
         PasswordEncoder passwordEncoder = SecurityConfiguration.passwordEncoder();
         User userEntity = new User(
-                userRequestDTO.username(),
+                userRequestDTO.firstName(),
+                userRequestDTO.lastName(),
                 userRequestDTO.email(),
                 passwordEncoder.encode(userRequestDTO.password()));
 
@@ -36,20 +65,44 @@ public class UserService {
         return true;
     }
 
-    public List<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
-
     public boolean loginUser(LoginRequestDTO loginRequestDTO) {
-        var user = userRepository.findByUserEmail(loginRequestDTO.email());
+        Optional<User> optionalUser = userRepository.findByUserEmail(loginRequestDTO.email());
 
-        if (user != null) {
-            String storedHashedPassword = user.getPasswordHash();
+        if (optionalUser.isPresent()) {
+            String storedHashedPassword = optionalUser.get().getPasswordHash();
             return passwordEncoder.matches(loginRequestDTO.password(), storedHashedPassword);
         }
 
-        return false; // User not found
+        return false;
     }
+
+    public boolean updateUser(int userId, UserRequestDTO userRequestDTO) {
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setFirstName(userRequestDTO.firstName());
+            user.setLastName(userRequestDTO.lastName());
+            user.setUserEmail(userRequestDTO.email());
+            user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
+            userRepository.save(user);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean deleteUser(int userId) {
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+
+        if (optionalUser.isPresent()) {
+            userRepository.delete(optionalUser.get());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
 
 }
