@@ -6,6 +6,8 @@ import org.example.backendclerkio.dto.ProductsResponseDTO;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.service.ProductService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +26,10 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public List<Product> getAllProducts() {
-        return productService.findAll();
-    }
+    public Page<Product> getAllProducts(Pageable pageable) {
+       return productService.findAll(pageable);
+}
+
 
     @PostMapping("/create")
     public ResponseEntity<Product> createProduct(@RequestBody Product product) {
