@@ -5,6 +5,7 @@ import org.example.backendclerkio.JwtAuthenticationEntryPoint;
 import org.example.backendclerkio.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,19 +36,24 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         System.out.println("WebSec configure(HttpSecurity) Call: 2");
-        http.cors().and().csrf().disable()  // was cors().and() after http
-                // to implement CSRF token https://www.javainuse.com/spring/boot_security_csrf
-                // "antMathcers" comes from Apache Ant build system.
-                // Since Spring 3, the next line replaces the old one:
-                // .authorizeRequests().antMatchers("/login", "/signup").permitAll()
 
-        .authorizeHttpRequests().requestMatchers("/user", "/users", "/register", "/login", "/delete", "/update", "api/v1/products").permitAll()
+        http.cors().and().csrf().disable() // Disable CORS and CSRF for simplicity; adjust for production
+                .authorizeHttpRequests()
+                // Permit these endpoints for everyone
+                .requestMatchers("/login", "/register", "/api/v1/products", "/api/v1/create","/api/v1/product","/user", "/users", "/register", "/login", "/delete", "/update").permitAll()
+                // Allow DELETE and PUT for authenticated users (no roles required)
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/delete").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/v1/update").permitAll()
+                // Permit all other requests for now (can be refined based on needs)
+                .anyRequest().authenticated()
+                .and()
+                .exceptionHandling()
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        .anyRequest().authenticated()
-        .and()
-        .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint)
-        .and()
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        // Adding the filter before the UsernamePasswordAuthenticationFilter
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

@@ -1,5 +1,6 @@
 package org.example.backendclerkio.service;
 
+import jakarta.persistence.Column;
 import org.example.backendclerkio.dto.ProductDTO;
 import org.example.backendclerkio.dto.ProductsResponseDTO;
 import org.example.backendclerkio.entity.Product;
@@ -68,5 +69,43 @@ public class ProductService {
         return productRepository.findAll();
     }
 
+    public Product createProduct(String name, float price, String decription, int stockCount, String imageURL){
+        Product product = new Product();
+        product.setName(name);
+        product.setPrice(price);
+        product.setDescription(decription);
+        product.setStockCount(stockCount);
+        product.setImageURL(imageURL);
+        return productRepository.save(product);
+    }
+
+    public void deleteProduct(int id){
+    if (!productRepository.existsById(id)) {
+        throw new IllegalArgumentException("Product not found");
+    }
+        productRepository.deleteById(id);
+
+    }
+
+    public Product updateProduct(int id, Product product) {
+        Product existingProduct = productRepository.findById(id).orElse(null);
+        if (existingProduct == null) {
+            throw new IllegalArgumentException("Booking not found");
+        }
+        existingProduct.setName(product.getName());
+        existingProduct.setPrice(product.getPrice());
+        existingProduct.setDescription(product.getDescription());
+        existingProduct.setStockCount(product.getStockCount());
+        existingProduct.setImageURL(product.getImageURL());
+        return productRepository.save(existingProduct);
+    }
+
+    public Product getProductById(int id) {
+        return productRepository.findById(id).orElse(null);
+    }
+
+
 }
+
+
 

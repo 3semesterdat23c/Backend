@@ -19,11 +19,8 @@ public class User {
     @Column(name = "user_id")
     private int userId;
 
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
+    @Column(name = "username", nullable = false)
+    private String username;
 
     @Column(name = "email", nullable = false)
     private String userEmail;
@@ -34,9 +31,8 @@ public class User {
     @Column(name = "passwordHash", nullable = false)
     private String passwordHash;
 
-    public User(String firstName, String lastName, String userEmail, String passwordHash) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public User(String username, String userEmail, String passwordHash) {
+        this.username = username;
         this.userEmail = userEmail;
         this.isAdmin = false;
         this.passwordHash = passwordHash;
