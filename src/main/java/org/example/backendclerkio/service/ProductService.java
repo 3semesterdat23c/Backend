@@ -5,6 +5,8 @@ import org.example.backendclerkio.dto.ProductDTO;
 import org.example.backendclerkio.dto.ProductsResponseDTO;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -65,8 +67,8 @@ public class ProductService {
                 });
     }
 
-    public List<Product> findAll(){
-        return productRepository.findAll();
+    public Page<Product> findAll(Pageable pageable){
+        return productRepository.findAllBy(pageable);
     }
 
     public Product createProduct(String name, float price, String decription, int stockCount, String imageURL){
