@@ -14,21 +14,19 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-@RequestMapping("api")
+@RequestMapping("api/v1")
 @RestController
 @CrossOrigin
 public class ProductController {
-private final ProductRepository productRepository;
 private final ProductService productService;
 
-public ProductController(ProductService productService, ProductRepository productRepository) {
+public ProductController(ProductService productService) {
     this.productService = productService;
-    this.productRepository = productRepository;
+
 }
 
     @GetMapping("/products")
-    public List<Product> getAllProducts(){
-    return productRepository.findAll();
-    }
-
+    public List<Product> getAllProducts() {
+       return productService.findAll();
+}
 }
