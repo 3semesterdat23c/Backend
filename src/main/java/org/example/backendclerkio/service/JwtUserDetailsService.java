@@ -15,7 +15,7 @@ import java.util.List;
 public class JwtUserDetailsService implements UserDetailsService {
     private UserService userService;
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         System.out.println(" JwtUserDetailsService loadUserByUsername Call: 5,6");
         // point mht. bruger database:
         // Brugere bliver oprettet ved /login. Der gemmes brugernavn og bcrypt encoded password
@@ -23,18 +23,19 @@ public class JwtUserDetailsService implements UserDetailsService {
         // Herefter opretter man et nyt userdetails.User objekt med usr/pw fra databasen.
         // Spring Security vil herefter bruge bcrypt.compare() til at sammenligne clear-text pw fra
         // login-formular med datbasens bcrypt af pw. Hvis svaret er true, er brugeren godkendt.
-        List<org.example.backendclerkio.entity.User> users = userService.findByUsername(username);
+        List<org.example.backendclerkio.entity.User> users = List.of(userService.findByUserEmail(email).get());
         System.out.println("users from database: length: " + users.size());
         if(users.size()==1) {
-            System.out.println("found the user in Database: " + users.get(0).getUsername());
-                return new User(username,
+            System.out.println("found the user in Database: " + users.get(0).getUserEmail());
+                return new User(
+                        users.get(0).getUserEmail(),
                         users.get(0).getPasswordHash(),  // "password" encoded here
                         // Point: Bcrypt can hash the same clear-text string many times: each time will lead to a different hashed string.
                         // You can check https://bcrypt-generator.com/ to verify if a cleartext string matches any bcrypt hash.
                         new ArrayList<>());
                 // bcrypt example:  $2a$10$WG/h8E/8U6j48JOn7BnWTe7g9OenBlzapETPHeqZgrBxjcKmsWTmm
         }else{
-                throw new UsernameNotFoundException("User not found with username: " + username);
+                throw new UsernameNotFoundException("User not found with email: " + email);
         }
     }
 }
