@@ -7,6 +7,7 @@ import org.example.backendclerkio.dto.UserRequestDTO;
 import org.example.backendclerkio.dto.UserResponseDTO;
 import org.example.backendclerkio.service.JwtUserDetailsService;
 import org.example.backendclerkio.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,9 +34,11 @@ public class UserController {
         this.jwtTokenManager = jwtTokenManager;
     }
 
-    @GetMapping("/user")
-    public UserResponseDTO getUser(@RequestParam int userId) {
-        return userService.getUser(userId);
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable int userId) {
+        return userService.getUser(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping("/users")
