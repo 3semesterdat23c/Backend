@@ -48,9 +48,9 @@ public class UserService {
         return userRepository.findByUserEmail(email);
     }
 
-    public boolean registerUser(UserRequestDTO userRequestDTO) {
+    public UserResponseDTO registerUser(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByUserEmail(userRequestDTO.email())) {
-            return false;
+            throw new RuntimeException("User with this email already exists.");
         }
 
         PasswordEncoder passwordEncoder = SecurityConfiguration.passwordEncoder();
@@ -58,10 +58,17 @@ public class UserService {
                 userRequestDTO.firstName(),
                 userRequestDTO.lastName(),
                 userRequestDTO.email(),
-                passwordEncoder.encode(userRequestDTO.password()));
+                passwordEncoder.encode(userRequestDTO.password())
+        );
 
-        userRepository.save(userEntity);
-        return true;
+        User savedUser = userRepository.save(userEntity);
+
+        return new UserResponseDTO(
+                savedUser.getUserId(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getUserEmail()
+        );
     }
 
     public boolean loginUser(LoginRequestDTO loginRequestDTO) {
