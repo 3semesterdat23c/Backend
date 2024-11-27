@@ -23,12 +23,12 @@ private final ProductService productService;
 
 public ProductController(ProductService productService, ProductRepository productRepository) {
     this.productService = productService;
-    this.productRepository = productRepository;
+
 }
 
     @GetMapping("/products")
     public List<Product> getAllProducts(){
-    return productRepository.findAll();
+    return productService.findAll();
     }
 
 }
