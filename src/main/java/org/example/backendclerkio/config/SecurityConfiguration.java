@@ -40,7 +40,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         http.cors().and().csrf().disable() // Disable CORS and CSRF for simplicity; adjust for production
                 .authorizeHttpRequests()
                 // Permit these endpoints for everyone
-                .requestMatchers("/login", "/register", "/api/v1/products", "/api/v1/create","/api/v1/product","/user", "/users", "/register", "/login", "/delete", "/update").permitAll()
+                .requestMatchers("/login", "/register", "/api/v1/products", "/api/v1/create","/api/v1/product","/users/{userId}", "/users", "/register", "/login", "/delete", "/update").permitAll()
                 // Allow DELETE and PUT for authenticated users (no roles required)
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/delete").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/v1/update").permitAll()
