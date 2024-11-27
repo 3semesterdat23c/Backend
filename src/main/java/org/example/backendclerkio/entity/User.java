@@ -37,6 +37,4 @@ public class User {
         this.isAdmin = false;
         this.passwordHash = passwordHash;
     }
-
-    //TODO: Skal vi have et full name attribut?
 }
