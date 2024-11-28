@@ -75,8 +75,8 @@ public class UserController {
         return ResponseEntity.ok(new JwtResponseModelDTO(jwtToken));
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<String> updateUser(@RequestParam int userId, @RequestBody UserRequestDTO userRequestDTO) {
+    @PutMapping("users/{userId}/update")
+    public ResponseEntity<String> updateUser(@PathVariable int userId, @RequestBody UserRequestDTO userRequestDTO) {
         boolean updateSuccesful = userService.updateUser(userId, userRequestDTO);
 
         if (updateSuccesful) {
