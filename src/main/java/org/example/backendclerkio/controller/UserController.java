@@ -7,6 +7,7 @@ import org.example.backendclerkio.dto.UserRequestDTO;
 import org.example.backendclerkio.dto.UserResponseDTO;
 import org.example.backendclerkio.service.JwtUserDetailsService;
 import org.example.backendclerkio.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,8 +17,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
-@RestController()
+@RequestMapping("api/v1/")
+@RestController
 public class UserController {
 
     private final UserService userService;
@@ -33,25 +36,33 @@ public class UserController {
         this.jwtTokenManager = jwtTokenManager;
     }
 
-    @GetMapping("/user")
-    public UserResponseDTO getUser(@RequestParam int userId) {
-        return userService.getUser(userId);
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<?> getUser(@PathVariable int userId) {
+        if (!userService.userExistsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with user ID: " + userId + " not found.");
+        }
+
+        return userService.getUser(userId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping("/users")
-    public List<UserResponseDTO> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        List<UserResponseDTO> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody UserRequestDTO userRequestDTO) {
-        boolean creationSuccesful = userService.registerUser(userRequestDTO);
-
-        if (creationSuccesful) {
-            return ResponseEntity.ok("User created succesfully");
-        } else {
-            return ResponseEntity.status(409).body("User with email already exists");
+    public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO userRequestDTO) {
+        if (userService.userExistsByEmail(userRequestDTO.email())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A user with the email " + userRequestDTO.email() + " already exists.");
         }
+
+        UserResponseDTO userResponseDTO = userService.registerUser(userRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
     }
 
     @PostMapping("/login")
@@ -71,25 +82,44 @@ public class UserController {
         return ResponseEntity.ok(new JwtResponseModelDTO(jwtToken));
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<String> updateUser(@RequestParam int userId, @RequestBody UserRequestDTO userRequestDTO) {
-        boolean updateSuccesful = userService.updateUser(userId, userRequestDTO);
+    @PutMapping("users/{userId}/update")
+    public ResponseEntity<?> updateUser(@PathVariable int userId, @RequestBody UserRequestDTO userRequestDTO) {
+        if (!userService.userExistsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with user ID: " + userId + " not found.");
+        }
 
-        if (updateSuccesful) {
-            return ResponseEntity.ok("User updated");
+        Optional<UserResponseDTO> updatedUser = userService.updateUser(userId, userRequestDTO);
+        if (updatedUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(updatedUser.get());
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update the user. Please try again.");
         }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteUser(@RequestParam int userId) {
-        boolean deletionSuccesful = userService.deleteUser(userId);
-
-        if (deletionSuccesful) {
-            return ResponseEntity.ok("User deleted succesfully");
-        } else {
-            return ResponseEntity.notFound().build();
+    @DeleteMapping("users/{userId}/delete")
+    public ResponseEntity<String> deleteUser(@PathVariable int userId) {
+        if (!userService.userExistsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with user ID: " + userId + " not found.");
         }
+
+        if (userService.deleteUser(userId)) {
+            return ResponseEntity.ok("User deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete user. Please try again.");
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            String jwtToken = token.substring(7);
+            jwtTokenManager.blacklistToken(jwtToken);
+            return ResponseEntity.ok("Logout successful.");
+        }
+        return ResponseEntity.badRequest().body("Invalid token.");
     }
 }

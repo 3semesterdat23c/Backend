@@ -24,14 +24,13 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserResponseDTO getUser(int userId) {
+    public Optional<UserResponseDTO> getUser(int userId) {
         return userRepository.findById(userId)
                 .map(user -> new UserResponseDTO(
                         user.getUserId(),
                         user.getFirstName(),
                         user.getLastName(),
-                        user.getUserEmail()))
-                .orElseThrow(() -> new RuntimeException("Student not found with id " + userId));
+                        user.getUserEmail()));
     }
 
     public List<UserResponseDTO> getAllUsers() {
@@ -45,13 +44,9 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<User> findByUserEmail(String email) {
-        return userRepository.findByUserEmail(email);
-    }
-
-    public boolean registerUser(UserRequestDTO userRequestDTO) {
+    public UserResponseDTO registerUser(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByUserEmail(userRequestDTO.email())) {
-            return false;
+            throw new RuntimeException("User with this email already exists.");
         }
 
         PasswordEncoder passwordEncoder = SecurityConfiguration.passwordEncoder();
@@ -59,10 +54,17 @@ public class UserService {
                 userRequestDTO.firstName(),
                 userRequestDTO.lastName(),
                 userRequestDTO.email(),
-                passwordEncoder.encode(userRequestDTO.password()));
+                passwordEncoder.encode(userRequestDTO.password())
+        );
 
-        userRepository.save(userEntity);
-        return true;
+        User savedUser = userRepository.save(userEntity);
+
+        return new UserResponseDTO(
+                savedUser.getUserId(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getUserEmail()
+        );
     }
 
     public boolean loginUser(LoginRequestDTO loginRequestDTO) {
@@ -76,7 +78,7 @@ public class UserService {
         return false;
     }
 
-    public boolean updateUser(int userId, UserRequestDTO userRequestDTO) {
+    public Optional<UserResponseDTO> updateUser(int userId, UserRequestDTO userRequestDTO) {
         Optional<User> optionalUser = userRepository.findByUserId(userId);
 
         if (optionalUser.isPresent()) {
@@ -85,10 +87,19 @@ public class UserService {
             user.setLastName(userRequestDTO.lastName());
             user.setUserEmail(userRequestDTO.email());
             user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
-            userRepository.save(user);
-            return true;
+
+            User updatedUser = userRepository.save(user);
+
+            UserResponseDTO userResponseDTO = new UserResponseDTO(
+                    updatedUser.getUserId(),
+                    updatedUser.getFirstName(),
+                    updatedUser.getLastName(),
+                    updatedUser.getUserEmail()
+            );
+
+            return Optional.of(userResponseDTO);
         } else {
-            return false;
+            return Optional.empty();
         }
     }
 
@@ -101,6 +112,18 @@ public class UserService {
         } else {
             return false;
         }
+    }
+
+    public Optional<User> findByUserEmail(String email) {
+        return userRepository.findByUserEmail(email);
+    }
+
+    public boolean userExistsByEmail(String email) {
+        return userRepository.existsByUserEmail(email);
+    }
+
+    public boolean userExistsByUserId(int userId) {
+        return userRepository.existsByUserId(userId);
     }
 
 
