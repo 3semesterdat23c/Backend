@@ -149,4 +149,9 @@ class ProductServiceTest {
         Mockito.verify(mockedProductRepository, Mockito.times(1)).findAll(pageable);
     }
 
+    @Test
+    void testDeleteProductById(){
+        assertThrows(RuntimeException.class, () -> productService.deleteProduct(42));
+    }
+
 }
