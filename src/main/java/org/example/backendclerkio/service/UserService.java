@@ -78,7 +78,7 @@ public class UserService {
         return false;
     }
 
-    public boolean updateUser(int userId, UserRequestDTO userRequestDTO) {
+    public Optional<UserResponseDTO> updateUser(int userId, UserRequestDTO userRequestDTO) {
         Optional<User> optionalUser = userRepository.findByUserId(userId);
 
         if (optionalUser.isPresent()) {
@@ -87,10 +87,19 @@ public class UserService {
             user.setLastName(userRequestDTO.lastName());
             user.setUserEmail(userRequestDTO.email());
             user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
-            userRepository.save(user);
-            return true;
+
+            User updatedUser = userRepository.save(user);
+
+            UserResponseDTO userResponseDTO = new UserResponseDTO(
+                    updatedUser.getUserId(),
+                    updatedUser.getFirstName(),
+                    updatedUser.getLastName(),
+                    updatedUser.getUserEmail()
+            );
+
+            return Optional.of(userResponseDTO);
         } else {
-            return false;
+            return Optional.empty();
         }
     }
 
@@ -111,6 +120,10 @@ public class UserService {
 
     public boolean userExistsByEmail(String email) {
         return userRepository.existsByUserEmail(email);
+    }
+
+    public boolean userExistsByUserId(int userId) {
+        return userRepository.existsByUserId(userId);
     }
 
 
