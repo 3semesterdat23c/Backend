@@ -68,7 +68,7 @@ public class ProductService {
     }
 
     public Page<Product> findAll(Pageable pageable){
-        return productRepository.findAllBy(pageable);
+        return productRepository.findAll(pageable);
     }
 
     public Product createProduct(String name, float price, String decription, int stockCount, String imageURL){
