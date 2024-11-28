@@ -75,7 +75,7 @@ public class UserController {
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
-            return ResponseEntity.ok(new JwtResponseModelDTO("bad credentials"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new JwtResponseModelDTO("Bad Credentials"));
         }
         final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(loginRequestDTO.email());
         final String jwtToken = jwtTokenManager.generateJwtToken(userDetails);
