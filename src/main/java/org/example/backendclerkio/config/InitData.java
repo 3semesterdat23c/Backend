@@ -1,7 +1,7 @@
 package org.example.backendclerkio.config;
 
 import jakarta.annotation.PostConstruct;
-import org.example.backendclerkio.dto.ProductDTO;
+import org.example.backendclerkio.dto.ProductResponseDTO;
 import org.example.backendclerkio.dto.ProductsResponseDTO;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.repository.ProductRepository;
@@ -40,7 +40,7 @@ public class InitData {
         }
     }
 
-    private Product mapToEntity(ProductDTO dto) {
+    private Product mapToEntity(ProductResponseDTO dto) {
         System.out.println("Mapping:" + dto);
         return new Product (
                 dto.id(),
@@ -49,7 +49,9 @@ public class InitData {
                 dto.price(),
                 dto.stock(),
                 dto.category(),
-                dto.images()
+                dto.images(),
+                dto.discountPercentage()
+
         );
     }
 }

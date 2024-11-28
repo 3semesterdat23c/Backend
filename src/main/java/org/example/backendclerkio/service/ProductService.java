@@ -1,7 +1,7 @@
 package org.example.backendclerkio.service;
 
-import jakarta.persistence.Column;
-import org.example.backendclerkio.dto.ProductDTO;
+import org.example.backendclerkio.dto.ProductResponseDTO;
+import org.example.backendclerkio.dto.ProductRequestDTO;
 import org.example.backendclerkio.dto.ProductsResponseDTO;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.repository.ProductRepository;
@@ -51,7 +51,7 @@ public class ProductService {
                     ProductsResponseDTO secondBatch = tuple.getT2();
 
                     // Combine the product lists
-                    List<ProductDTO> combinedProducts = new ArrayList<>();
+                    List<ProductResponseDTO> combinedProducts = new ArrayList<>();
                     combinedProducts.addAll(firstBatch.products());
                     combinedProducts.addAll(secondBatch.products());
 
@@ -71,14 +71,17 @@ public class ProductService {
         return productRepository.findAll(pageable);
     }
 
-    public Product createProduct(String name, float price, String decription, int stockCount, String imageURL){
-        Product product = new Product();
-        product.setName(name);
-        product.setPrice(price);
-        product.setDescription(decription);
-        product.setStockCount(stockCount);
-        product.setImageURL(imageURL);
-        return productRepository.save(product);
+    public Product createProduct(ProductRequestDTO productRequestDTO){
+        Product product = new Product(
+                productRequestDTO.title(),
+                productRequestDTO.description(),
+                productRequestDTO.price(),
+                productRequestDTO.stock(),
+                productRequestDTO.category(),
+                productRequestDTO.images(),
+                productRequestDTO.discountPercentage());
+        productRepository.save(product);
+        return product;
     }
 
     public void deleteProduct(int id){
@@ -99,6 +102,7 @@ public class ProductService {
         existingProduct.setDescription(product.getDescription());
         existingProduct.setStockCount(product.getStockCount());
         existingProduct.setImageURL(product.getImageURL());
+        existingProduct.setDiscount(product.getDiscount());
         return productRepository.save(existingProduct);
     }
 
