@@ -42,13 +42,13 @@ class ProductServiceTest {
         Product createdProduct = productService.createProduct("Test product", 5.0f, "Test description", 5, "test-image-url");
 
         // Assert: Verify that the product was created as expected
-        assertNotNull(createdProduct, "Created product should not be null");
-        assertEquals("Test product", createdProduct.getName(), "Product name should match");
-        assertEquals(1, createdProduct.getProductId(), "Product ID should match");
-        assertEquals(5.0f, createdProduct.getPrice(), 0.001, "Product price should match");
-        assertEquals("Test description", createdProduct.getDescription(), "Product description should match");
-        assertEquals(5, createdProduct.getStockCount(), "Product stock count should match");
-        assertEquals("test-image-url", createdProduct.getImageURL(), "Product image URL should match");
+        assertNotNull(createdProduct);
+        assertEquals("Test product", createdProduct.getName());
+        assertEquals(1, createdProduct.getProductId());
+        assertEquals(5.0f, createdProduct.getPrice());
+        assertEquals("Test description", createdProduct.getDescription());
+        assertEquals(5, createdProduct.getStockCount());
+        assertEquals("test-image-url", createdProduct.getImageURL());
 
 
         // Optionally, verify interactions with WebClient if applicable
