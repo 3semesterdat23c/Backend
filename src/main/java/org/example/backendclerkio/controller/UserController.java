@@ -37,7 +37,12 @@ public class UserController {
     }
 
     @GetMapping("/users/{userId}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable int userId) {
+    public ResponseEntity<?> getUser(@PathVariable int userId) {
+        if (!userService.userExistsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with user ID: " + userId + " not found.");
+        }
+
         return userService.getUser(userId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
