@@ -3,21 +3,26 @@ package org.example.backendclerkio.config;
 import jakarta.annotation.PostConstruct;
 import org.example.backendclerkio.dto.ProductResponseDTO;
 import org.example.backendclerkio.dto.ProductsResponseDTO;
+import org.example.backendclerkio.entity.Category;
 import org.example.backendclerkio.entity.Product;
+import org.example.backendclerkio.repository.CategoryRepository;
 import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.service.ProductService;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Configuration
 public class InitData {
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final ProductService productService;
 
-    public InitData(ProductRepository productRepository, ProductService productService) {
+    public InitData(ProductRepository productRepository, CategoryRepository categoryRepository, ProductService productService) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.productService = productService;
     }
 
@@ -41,17 +46,19 @@ public class InitData {
     }
 
     private Product mapToEntity(ProductResponseDTO dto) {
-        System.out.println("Mapping:" + dto);
-        return new Product (
-                dto.id(),
+        // Find or create the category
+        Category category = categoryRepository.findByCategoryName(dto.category())
+                .orElseGet(() -> categoryRepository.save(new Category(0, dto.category(), 0, null)));
+
+        // Create the product with the category
+        return new Product(
                 dto.title(),
                 dto.description(),
                 dto.price(),
                 dto.stock(),
-                dto.category(),
+                Set.of(category),  // Associate the found/created category
                 dto.images(),
                 dto.discountPercentage()
-
         );
     }
 }

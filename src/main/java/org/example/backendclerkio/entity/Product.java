@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,23 +33,22 @@ public class Product {
     @Column (name = "discount")
     private float discount;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "category_product", // The join table name
+            joinColumns = @JoinColumn(name = "product_id"), // Product column in join table
+            inverseJoinColumns = @JoinColumn(name = "category_id") // Category column in join table
+    )
+    private Set<Category> categories;
 
-    public Product(int id, String title, String description, float price, int stock, String category, List<String> images, float discount) {
-        this.productId = id;
+    public Product(String title, String description, float price, int stock, Set<Category> categories, List<String> images, float discount) {
         this.name = title;
         this.description = description;
         this.price = price;
         this.stockCount = stock;
-        this.discount=discount;
-        this.imageURL = images != null && !images.isEmpty() ? images.get(0) : null; // Assuming you want to store the first image in the list
-    }
-    public Product(String title, String description, float price, int stock, String category, List<String> images, float discount) {
-        this.name = title;
-        this.description = description;
-        this.price = price;
-        this.stockCount = stock;
-        this.discount=discount;
-        this.imageURL = images != null && !images.isEmpty() ? images.get(0) : null; // Assuming you want to store the first image in the list
+        this.discount = discount;
+        this.categories = categories;
+        this.imageURL = images != null && !images.isEmpty() ? images.get(0) : null;
     }
 
 }
