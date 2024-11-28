@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController()
 public class UserController {
@@ -76,24 +77,33 @@ public class UserController {
     }
 
     @PutMapping("users/{userId}/update")
-    public ResponseEntity<String> updateUser(@PathVariable int userId, @RequestBody UserRequestDTO userRequestDTO) {
-        boolean updateSuccesful = userService.updateUser(userId, userRequestDTO);
+    public ResponseEntity<?> updateUser(@PathVariable int userId, @RequestBody UserRequestDTO userRequestDTO) {
+        if (!userService.userExistsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with user ID: " + userId + " not found.");
+        }
 
-        if (updateSuccesful) {
-            return ResponseEntity.ok("User updated");
+        Optional<UserResponseDTO> updatedUser = userService.updateUser(userId, userRequestDTO);
+        if (updatedUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(updatedUser.get());
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update the user. Please try again.");
         }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteUser(@RequestParam int userId) {
-        boolean deletionSuccesful = userService.deleteUser(userId);
+    @DeleteMapping("users/{userId}/delete")
+    public ResponseEntity<String> deleteUser(@PathVariable int userId) {
+        if (!userService.userExistsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with user ID: " + userId + " not found.");
+        }
 
-        if (deletionSuccesful) {
-            return ResponseEntity.ok("User deleted succesfully");
+        if (userService.deleteUser(userId)) {
+            return ResponseEntity.ok("User deleted successfully.");
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete user. Please try again.");
         }
     }
 }
