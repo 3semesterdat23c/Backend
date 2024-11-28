@@ -36,10 +36,7 @@ class ProductServiceTest {
         Product mockProduct = new Product(1, "Test product", 5.0f, "Test description", 5, "test-image-url");
         when(productRepository.save(any(Product.class))).thenReturn(mockProduct);
 
-        // If ProductService uses WebClient, set up its behavior
         when(webClientBuilder.build()).thenReturn(webClient);
-        // Optionally, mock any WebClient interactions if necessary
-        // e.g., when(webClient.someMethod()).thenReturn(someValue);
 
         // Act: Call the service method to create a product
         Product createdProduct = productService.createProduct("Test product", 5.0f, "Test description", 5, "test-image-url");
@@ -56,6 +53,5 @@ class ProductServiceTest {
 
         // Optionally, verify interactions with WebClient if applicable
         verify(webClientBuilder, times(1)).build();
-        // e.g., verify(webClient, times(1)).someMethod();
     }
 }
