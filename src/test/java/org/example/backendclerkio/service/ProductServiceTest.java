@@ -3,11 +3,13 @@ package org.example.backendclerkio.service;
 import jakarta.transaction.Transactional;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.repository.ProductRepository;
+import org.glassfish.jaxb.core.v2.TODO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.data.domain.*;
@@ -20,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doThrow;
 
 @SpringBootTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY) // Uses an in-memory database
 @Transactional
 class ProductServiceTest {
 
@@ -71,6 +74,11 @@ class ProductServiceTest {
 
         // Mocking deleteById to throw exception for non-existing product
         doThrow(new RuntimeException("Product not found with id: 42")).when(mockedProductRepository).deleteById(42);
+
+        // Mocking findById for existing product
+        int existingProductId = 1;
+        Product existingProduct = new Product(existingProductId, "Product A", 10.0f, "Description A", 100, "imageA.jpg");
+        Mockito.when(mockedProductRepository.findById(existingProductId)).thenReturn(Optional.of(existingProduct));
     }
 
     @Test
@@ -93,7 +101,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void testFindAll_WithPagination_FirstPage_Success() {
+    void testFindAllWithPaginationFirstPageSuccess() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 2, Sort.by("name").ascending());
 
@@ -113,7 +121,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void testFindAll_WithPagination_SecondPage_Success() {
+    void testFindAllWithPaginationSecondPageSuccess() {
         // Arrange
         Pageable pageable = PageRequest.of(1, 2, Sort.by("name").ascending());
 
@@ -132,7 +140,7 @@ class ProductServiceTest {
     }
 
     @Test
-    void testFindAll_WithNoProducts_ReturnsEmptyPage() {
+    void testFindAllWithNoProductsReturnsEmptyPage() {
         // Arrange
         Pageable pageable = PageRequest.of(0, 10, Sort.by("name").ascending());
 
@@ -150,8 +158,20 @@ class ProductServiceTest {
     }
 
     @Test
-    void testDeleteProductById(){
+    void testDeleteProductByNonExistingId(){
         assertThrows(RuntimeException.class, () -> productService.deleteProduct(42));
     }
+    //TODO: Isn't working, either delete or get help by Jarl friday
+    /*
+    @Test
+    void testDeleteProductByIdExistingProduct(){
+        // Arrange
+        int existingProductId = 1;
 
+        // Act & Assert: Attempt to delete an existing product and expect no exception
+        assertDoesNotThrow(() -> productService.deleteProduct(existingProductId), "Deleting existing product should not throw any exception");
+
+        // Verify that deleteById was called with id=1
+        Mockito.verify(mockedProductRepository, Mockito.times(1)).deleteById(existingProductId);
+    }*/
 }
