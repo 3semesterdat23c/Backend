@@ -1,19 +1,15 @@
 package org.example.backendclerkio.controller;
 
 
-import org.example.backendclerkio.dto.ProductDTO;
-import org.example.backendclerkio.dto.ProductsResponseDTO;
+import org.example.backendclerkio.dto.ProductRequestDTO;
 import org.example.backendclerkio.entity.Product;
-import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
 @RequestMapping("api/v1")
 @RestController
 @CrossOrigin
@@ -32,19 +28,13 @@ public class ProductController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-        Product createdProduct = productService.createProduct(
-                product.getName(),
-                product.getPrice(),
-                product.getDescription(),
-                product.getStockCount(),
-                product.getImageURL()
-        );
+    public ResponseEntity<?> createProduct(@RequestBody ProductRequestDTO productRequestDTO) {
+        Product createdProduct = productService.createProduct(productRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteProduct(@RequestParam int id) {
+    @DeleteMapping("/{id}/delete")
+    public ResponseEntity<?> deleteProduct(@PathVariable int id) {
         try {
             productService.deleteProduct(id);
             return ResponseEntity.ok("product deleted successfully.");
@@ -55,8 +45,8 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<?> updateProduct(@RequestParam int id, @RequestBody Product updatedProduct) {
+    @PutMapping("/{id}/update")
+    public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
         try {
             Product updated = productService.updateProduct(id, updatedProduct);
             return ResponseEntity.ok(updated);
@@ -67,8 +57,8 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/product")
-    public ResponseEntity<?> getProductById(@RequestParam int id) {
+    @GetMapping("/products/{id}")
+    public ResponseEntity<?> getProductById(@PathVariable int id) {
         try {
             Product product = productService.getProductById(id);
             if (product == null) {

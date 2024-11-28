@@ -1,7 +1,7 @@
 package org.example.backendclerkio.service;
 
-import jakarta.persistence.Column;
-import org.example.backendclerkio.dto.ProductDTO;
+import org.example.backendclerkio.dto.ProductResponseDTO;
+import org.example.backendclerkio.dto.ProductRequestDTO;
 import org.example.backendclerkio.dto.ProductsResponseDTO;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.repository.ProductRepository;
@@ -51,7 +51,7 @@ public class ProductService {
                     ProductsResponseDTO secondBatch = tuple.getT2();
 
                     // Combine the product lists
-                    List<ProductDTO> combinedProducts = new ArrayList<>();
+                    List<ProductResponseDTO> combinedProducts = new ArrayList<>();
                     combinedProducts.addAll(firstBatch.products());
                     combinedProducts.addAll(secondBatch.products());
 
@@ -99,6 +99,7 @@ public class ProductService {
         existingProduct.setDescription(product.getDescription());
         existingProduct.setStockCount(product.getStockCount());
         existingProduct.setImageURL(product.getImageURL());
+        existingProduct.setDiscount(product.getDiscount());
         return productRepository.save(existingProduct);
     }
 
