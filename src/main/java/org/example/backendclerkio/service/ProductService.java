@@ -71,14 +71,17 @@ public class ProductService {
         return productRepository.findAll(pageable);
     }
 
-    public Product createProduct(String name, float price, String decription, int stockCount, String imageURL){
-        Product product = new Product();
-        product.setName(name);
-        product.setPrice(price);
-        product.setDescription(decription);
-        product.setStockCount(stockCount);
-        product.setImageURL(imageURL);
-        return productRepository.save(product);
+    public Product createProduct(ProductRequestDTO productRequestDTO){
+        Product product = new Product(
+                productRequestDTO.title(),
+                productRequestDTO.description(),
+                productRequestDTO.price(),
+                productRequestDTO.stock(),
+                productRequestDTO.category(),
+                productRequestDTO.images(),
+                productRequestDTO.discountPercentage());
+        productRepository.save(product);
+        return product;
     }
 
     public void deleteProduct(int id){
