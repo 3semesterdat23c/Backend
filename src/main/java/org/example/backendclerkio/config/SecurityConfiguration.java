@@ -49,7 +49,9 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         "/api/v1/register",
                         "/api/v1/login",
                         "/api/v1/users/{userId}/update",
-                        "/api/v1/users/{userId}/delete").permitAll()
+                        "/api/v1/users/{userId}/delete",
+                        "/api/v1/logout")
+                .permitAll()
                 // Allow DELETE and PUT for authenticated users (no roles required)
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/delete").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/v1/update").permitAll()
