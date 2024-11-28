@@ -30,7 +30,8 @@ public class UserService {
                         user.getUserId(),
                         user.getFirstName(),
                         user.getLastName(),
-                        user.getUserEmail()));
+                        user.getUserEmail(),
+                        user.isAdmin()));
     }
 
     public List<UserResponseDTO> getAllUsers() {
@@ -40,7 +41,8 @@ public class UserService {
                         user.getUserId(),
                         user.getFirstName(),
                         user.getLastName(),
-                        user.getUserEmail()))
+                        user.getUserEmail(),
+                        user.isAdmin()))
                 .collect(Collectors.toList());
     }
 
@@ -63,7 +65,8 @@ public class UserService {
                 savedUser.getUserId(),
                 savedUser.getFirstName(),
                 savedUser.getLastName(),
-                savedUser.getUserEmail()
+                savedUser.getUserEmail(),
+                savedUser.isAdmin()
         );
     }
 
@@ -94,7 +97,8 @@ public class UserService {
                     updatedUser.getUserId(),
                     updatedUser.getFirstName(),
                     updatedUser.getLastName(),
-                    updatedUser.getUserEmail()
+                    updatedUser.getUserEmail(),
+                    updatedUser.isAdmin()
             );
 
             return Optional.of(userResponseDTO);
