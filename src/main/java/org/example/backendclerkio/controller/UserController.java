@@ -112,4 +112,14 @@ public class UserController {
                     .body("Failed to delete user. Please try again.");
         }
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            String jwtToken = token.substring(7);
+            jwtTokenManager.blacklistToken(jwtToken);
+            return ResponseEntity.ok("Logout successful.");
+        }
+        return ResponseEntity.badRequest().body("Invalid token.");
+    }
 }
