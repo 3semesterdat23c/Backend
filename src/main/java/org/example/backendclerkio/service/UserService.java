@@ -44,10 +44,6 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<User> findByUserEmail(String email) {
-        return userRepository.findByUserEmail(email);
-    }
-
     public UserResponseDTO registerUser(UserRequestDTO userRequestDTO) {
         if (userRepository.existsByUserEmail(userRequestDTO.email())) {
             throw new RuntimeException("User with this email already exists.");
@@ -107,6 +103,14 @@ public class UserService {
         } else {
             return false;
         }
+    }
+
+    public Optional<User> findByUserEmail(String email) {
+        return userRepository.findByUserEmail(email);
+    }
+
+    public boolean userExistsByEmail(String email) {
+        return userRepository.existsByUserEmail(email);
     }
 
 
