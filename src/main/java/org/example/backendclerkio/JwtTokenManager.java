@@ -16,6 +16,13 @@ import java.util.Map;
 
 @Component
 public class JwtTokenManager {
+
+    private final TokenBlacklist tokenBlacklist;
+
+    public JwtTokenManager(TokenBlacklist tokenBlacklist) {
+        this.tokenBlacklist = tokenBlacklist;
+    }
+
     public static final long TOKEN_VALIDITY = 10 * 60 * 60 * 1000; // 10 timer
     // aha: Below is the server's private key. Which is used to generate new tokens. Length: Minimum 512 bits.
     // Which corresponds to minimum 86 characters in cleartext.
@@ -37,11 +44,14 @@ public class JwtTokenManager {
         return Keys.hmacShaKeyFor(keyBytes);
     }
     public Boolean validateJwtToken(String token, UserDetails userDetails) {
-        System.out.println("TokenManager validateJwtToken(String token, UserDetails) With token: Call: B");
+        System.out.println("Validating JWT token...");
         String username = getUsernameFromToken(token);
         Claims claims = getClaims(token);
+
         Boolean isTokenExpired = claims.getExpiration().before(new Date());
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired);
+        Boolean isBlacklisted = tokenBlacklist.isTokenBlacklisted(token);
+
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired && !isBlacklisted);
     }
     public String getUsernameFromToken(String token) {
         System.out.println("TokenManager getUsernameFromToken(String token) With token: Call: A");
@@ -67,5 +77,9 @@ public class JwtTokenManager {
             System.out.println("could not parse JWT token for claims");
         }
         return null;
+    }
+
+    public void blacklistToken(String token) {
+        tokenBlacklist.addToken(token);
     }
 }
