@@ -48,9 +48,13 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDTO> registerUser(@RequestBody UserRequestDTO userRequestDTO) {
-        UserResponseDTO userResponseDTO = userService.registerUser(userRequestDTO);
+    public ResponseEntity<?> registerUser(@RequestBody UserRequestDTO userRequestDTO) {
+        if (userService.userExistsByEmail(userRequestDTO.email())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("A user with the email " + userRequestDTO.email() + " already exists.");
+        }
 
+        UserResponseDTO userResponseDTO = userService.registerUser(userRequestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponseDTO);
     }
 
