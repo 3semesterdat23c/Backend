@@ -82,7 +82,7 @@ class ProductServiceTest {
         assertNotNull(createdProduct, "Created product should not be null");
         assertEquals("Test Product", createdProduct.getName(), "Product name should match");
         assertEquals(1, createdProduct.getProductId(), "Product ID should match");
-        assertEquals(50.0f, createdProduct.getPrice(), 0.001, "Product price should match");
+        assertEquals(50.0f, createdProduct.getPrice());
         assertEquals("Test Description", createdProduct.getDescription(), "Product description should match");
         assertEquals(10, createdProduct.getStockCount(), "Product stock count should match");
         assertEquals("test-image-url.jpg", createdProduct.getImageURL(), "Product image URL should match");
