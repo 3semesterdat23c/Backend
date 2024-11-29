@@ -121,7 +121,7 @@ public class ProductService {
         existingProduct.setPrice(product.getPrice());
         existingProduct.setDescription(product.getDescription());
         existingProduct.setStockCount(product.getStockCount());
-        existingProduct.setImageURL(product.getImageURL());
+        existingProduct.setImages(product.getImages());
         existingProduct.setDiscount(product.getDiscount());
         return productRepository.save(existingProduct);
     }
