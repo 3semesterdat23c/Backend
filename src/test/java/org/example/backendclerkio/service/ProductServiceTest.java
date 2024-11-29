@@ -1,9 +1,9 @@
 //package org.example.backendclerkio.service;
 //
 //import jakarta.transaction.Transactional;
+//import org.example.backendclerkio.dto.ProductRequestDTO;
 //import org.example.backendclerkio.entity.Product;
 //import org.example.backendclerkio.repository.ProductRepository;
-//import org.glassfish.jaxb.core.v2.TODO;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
 //import org.mockito.ArgumentMatchers;
@@ -47,15 +47,51 @@
 //        // Mocking the WebClient.Builder to return a mocked WebClient
 //        Mockito.when(mockedWebClientBuilder.build()).thenReturn(mockedWebClient);
 //
-//        // Mocking the save method
-//        Product mockSavedProduct = new Product(1, "Test Product", 50.0f, "Test Description", 10, "test-image-url.jpg");
+//        // Mocking the save method to return a Product constructed via the new constructor
+//        Product mockSavedProduct = new Product(
+//                1,
+//                "Test Product",
+//                "Test Description",
+//                50.0f,
+//                10,
+//                "Category A",
+//                List.of("test-image-url.jpg"),
+//                10.0f
+//        );
 //        Mockito.when(mockedProductRepository.save(ArgumentMatchers.any(Product.class))).thenReturn(mockSavedProduct);
 //
-//        // Mocking findAll with Pageable
+//        // Mocking findAll with Pageable using the new constructor
 //        List<Product> productList = new ArrayList<>();
-//        productList.add(new Product(1, "Product A", 10.0f, "Description A", 100, "imageA.jpg"));
-//        productList.add(new Product(2, "Product B", 20.0f, "Description B", 200, "imageB.jpg"));
-//        productList.add(new Product(3, "Product C", 30.0f, "Description C", 300, "imageC.jpg"));
+//        productList.add(new Product(
+//                1,
+//                "Product A",
+//                "Description A",
+//                10.0f,
+//                100,
+//                "Category A",
+//                List.of("imageA.jpg"),
+//                0.0f
+//        ));
+//        productList.add(new Product(
+//                2,
+//                "Product B",
+//                "Description B",
+//                20.0f,
+//                200,
+//                "Category B",
+//                List.of("imageB.jpg"),
+//                5.0f
+//        ));
+//        productList.add(new Product(
+//                3,
+//                "Product C",
+//                "Description C",
+//                30.0f,
+//                300,
+//                "Category C",
+//                List.of("imageC.jpg"),
+//                15.0f
+//        ));
 //
 //        Pageable pageableFirstPage = PageRequest.of(0, 2, Sort.by("name").ascending());
 //        Page<Product> firstPage = new PageImpl<>(productList.subList(0, 2), pageableFirstPage, productList.size());
@@ -73,27 +109,52 @@
 //        Mockito.when(mockedProductRepository.findAll(pageableEmpty)).thenReturn(emptyPage);
 //
 //        // Mocking deleteById to throw exception for non-existing product
-//        doThrow(new RuntimeException("Product not found with id: 42")).when(mockedProductRepository).deleteById(42);
+//        doThrow(new RuntimeException("Product not found with id: 42"))
+//                .when(mockedProductRepository).deleteById(42);
 //
-//        // Mocking findById for existing product
+//        // Mocking findById for existing product using the new constructor
 //        int existingProductId = 1;
-//        Product existingProduct = new Product(existingProductId, "Product A", 10.0f, "Description A", 100, "imageA.jpg");
+//        Product existingProduct = new Product(
+//                existingProductId,
+//                "Product A",
+//                "Description A",
+//                10.0f,
+//                100,
+//                "Category A",
+//                List.of("imageA.jpg"),
+//                0.0f
+//        );
 //        Mockito.when(mockedProductRepository.findById(existingProductId)).thenReturn(Optional.of(existingProduct));
+//
+//        Mockito.when(mockedProductRepository.existsById(existingProductId)).thenReturn(true);
+//
+//        Mockito.when(mockedProductRepository.existsById(42)).thenReturn(false);
 //    }
 //
 //    @Test
 //    void testCreateProduct() {
+//        // Arrange: Create a ProductRequestDTO instance
+//        ProductRequestDTO productRequestDTO = new ProductRequestDTO(
+//                "Test Product",
+//                "Test Description",
+//                50.0f,
+//                10,
+//                "Category A",
+//                10.0f,
+//                List.of("test-image-url.jpg")
+//        );
+//
 //        // Act: Call the service method to create a product
-//        Product createdProduct = productService.createProduct("Test Product", 50.0f, "Test Description", 10, "test-image-url.jpg");
+//        Product createdProduct = productService.createProduct(productRequestDTO);
 //
 //        // Assert: Verify that the product was created as expected
 //        assertNotNull(createdProduct, "Created product should not be null");
 //        assertEquals("Test Product", createdProduct.getName(), "Product name should match");
-//        assertEquals(1, createdProduct.getProductId(), "Product ID should match");
-//        assertEquals(50.0f, createdProduct.getPrice());
+//        assertEquals(50.0f, createdProduct.getPrice(), "Product price should match");
 //        assertEquals("Test Description", createdProduct.getDescription(), "Product description should match");
 //        assertEquals(10, createdProduct.getStockCount(), "Product stock count should match");
 //        assertEquals("test-image-url.jpg", createdProduct.getImageURL(), "Product image URL should match");
+//        assertEquals(10.0f, createdProduct.getDiscount(), "Product discount should match");
 //
 //        // Verify interactions with WebClient if applicable
 //        Mockito.verify(mockedWebClientBuilder, Mockito.times(1)).build();
@@ -159,10 +220,14 @@
 //
 //    @Test
 //    void testDeleteProductByNonExistingId(){
-//        assertThrows(RuntimeException.class, () -> productService.deleteProduct(42));
+//        // Act & Assert: Attempt to delete a non-existing product and expect a RuntimeException
+//        RuntimeException exception = assertThrows(RuntimeException.class, () -> productService.deleteProduct(42), "Deleting non-existing product should throw RuntimeException");
+//        assertEquals("Product not found", exception.getMessage(), "Exception message should match");
+//
+//        // Verify that deleteById was called with id=42
+//       // Mockito.verify(mockedProductRepository, Mockito.times(1)).deleteById(42);
 //    }
-//    //TODO: Isn't working, either delete or get help by Jarl friday
-//    /*
+//
 //    @Test
 //    void testDeleteProductByIdExistingProduct(){
 //        // Arrange
@@ -173,5 +238,5 @@
 //
 //        // Verify that deleteById was called with id=1
 //        Mockito.verify(mockedProductRepository, Mockito.times(1)).deleteById(existingProductId);
-//    }*/
+//    }
 //}
