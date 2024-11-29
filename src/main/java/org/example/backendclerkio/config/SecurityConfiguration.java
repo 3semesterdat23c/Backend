@@ -42,10 +42,12 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 // Permit these endpoints for everyone
                 .requestMatchers(
                         "/api/v1/products",
-                        "/api/v1/create",
-                        "/api/v1/product",
-                        "/api/v1/users/{userId}",
+                        "/api/v1/products/{id}",
+                        "/api/v1/products/create",
+                        "/api/v1/products/{id}/delete",
+                        "/api/v1/products/{id}/update",
                         "/api/v1/users",
+                        "/api/v1/users/{userId}",
                         "/api/v1/users/register",
                         "/api/v1/users/login",
                         "/api/v1/users/{userId}/update",
