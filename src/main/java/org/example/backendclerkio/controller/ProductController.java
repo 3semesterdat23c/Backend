@@ -22,9 +22,10 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public Page<Product> getAllProducts(Pageable pageable) {
-       return productService.findAll(pageable);
-}
+    public Page<Product> findAll(Pageable pageable) {
+        Page<Product> products = productService.findAll(pageable);
+        return products;
+    }
 
 
     @PostMapping("/create")
