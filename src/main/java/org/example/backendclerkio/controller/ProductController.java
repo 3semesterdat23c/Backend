@@ -24,7 +24,6 @@ public class ProductController {
     @GetMapping("/products")
     public Page<Product> findAll(Pageable pageable) {
         Page<Product> products = productService.findAll(pageable);
-        System.out.println("Total products fetched: " + products.getTotalElements());
         return products;
     }
 
