@@ -28,10 +28,11 @@ public class JwtTokenManager {
     // Which corresponds to minimum 86 characters in cleartext.
     @Value("${secret}")
     private String jwtSecret;
-    public String generateJwtToken(UserDetails userDetails) {
+    public String generateJwtToken(UserDetails userDetails, boolean isAdmin) {
         System.out.println("TokenManager generateJwtToken(UserDetails) call: 7");
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder().setClaims(claims).setSubject(userDetails.getUsername())
+                .claim("isAdmin", isAdmin)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + TOKEN_VALIDITY ))
                 .signWith(getSignInKey(),SignatureAlgorithm.HS512 )

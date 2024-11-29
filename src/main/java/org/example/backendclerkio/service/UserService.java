@@ -30,6 +30,7 @@ public class UserService {
                         user.getUserId(),
                         user.getFirstName(),
                         user.getLastName(),
+                        user.isAdmin(),
                         user.getUserEmail()));
     }
 
@@ -40,6 +41,7 @@ public class UserService {
                         user.getUserId(),
                         user.getFirstName(),
                         user.getLastName(),
+                        user.isAdmin(),
                         user.getUserEmail()))
                 .collect(Collectors.toList());
     }
@@ -63,6 +65,7 @@ public class UserService {
                 savedUser.getUserId(),
                 savedUser.getFirstName(),
                 savedUser.getLastName(),
+                savedUser.isAdmin(),
                 savedUser.getUserEmail()
         );
     }
@@ -94,6 +97,7 @@ public class UserService {
                     updatedUser.getUserId(),
                     updatedUser.getFirstName(),
                     updatedUser.getLastName(),
+                    updatedUser.isAdmin(),
                     updatedUser.getUserEmail()
             );
 
