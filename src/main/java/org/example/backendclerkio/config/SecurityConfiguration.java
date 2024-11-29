@@ -42,17 +42,18 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 // Permit these endpoints for everyone
                 .requestMatchers(
                         "/api/v1/products",
-                        "/api/v1/create",
-                        "/api/v1/product",
-                        "/api/v1/users/{userId}",
+                        "/api/v1/products/{id}",
+                        "/api/v1/products/create",
+                        "/api/v1/products/{id}/delete",
+                        "/api/v1/products/{id}/update",
                         "/api/v1/users",
-                        "/api/v1/register",
-                        "/api/v1/login",
+                        "/api/v1/users/{userId}",
+                        "/api/v1/users/register",
+                        "/api/v1/users/login",
                         "/api/v1/users/{userId}/update",
                         "/api/v1/users/{userId}/delete",
-                        "/api/v1/logout")
+                        "/api/v1/users/logout")
                 .permitAll()
-                .requestMatchers("/login", "/register", "/api/v1/products", "/api/v1/create","/api/v1/products/{id}","/user", "/users", "/register", "/login", "/delete", "/update").permitAll()
                 // Allow DELETE and PUT for authenticated users (no roles required)
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/{id}/delete").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/v1/{id}/update").permitAll()
