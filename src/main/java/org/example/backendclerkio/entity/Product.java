@@ -17,7 +17,6 @@ import java.util.Set;
 @Entity
 @Table(name = "product")
 public class Product {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
@@ -35,10 +34,13 @@ public class Product {
     @Column(name = "stock_count", nullable = false)
     private int stockCount;
 
-    @Column(name = "image_string")
-    private String imageURL;
+    // Change from single String to List<String>
+    @ElementCollection
+    @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
+    @Column(name = "image_url")
+    private List<String> images;
 
-    @Column(name = "discount", nullable = false)
+    @Column(name = "discount")
     private float discount;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -58,6 +60,15 @@ public class Product {
         this.stockCount = stock;
         this.discount = discount;
         this.categories = categories;
-        this.imageURL = images != null && !images.isEmpty() ? images.get(0) : null;
+        this.images = images;
+    }
+
+    public Product(String title, String description, float price, int stock, String category, List<String> images, float discount) {
+        this.name = title;
+        this.description = description;
+        this.price = price;
+        this.stockCount = stock;
+        this.images = images;
+        this.discount = discount;
     }
 }
