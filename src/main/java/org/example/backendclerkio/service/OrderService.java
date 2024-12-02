@@ -113,6 +113,36 @@ public class OrderService {
 
         return cartItemsDTO;
     }
+
+    public void removeItemFromCart(UserResponseDTO userDTO, CartItemResponseDTO cartItemResponseDTO) throws Exception {
+        // Fetch the user entity from the DTO
+        User user = userRepository.findById(userDTO.userId())
+                .orElseThrow(() -> new Exception("User not found"));
+
+        // Get or create the cart (Order entity)
+        Order cart = getCartForUser(user);
+
+        // Find the OrderProduct corresponding to the given product ID
+        Optional<OrderProduct> optionalOrderProduct = cart.getOrderProducts().stream()
+                .filter(op -> op.getProduct().getProductId() == cartItemResponseDTO.productId())
+                .findFirst();
+
+        if (optionalOrderProduct.isPresent()) {
+            OrderProduct orderProduct = optionalOrderProduct.get();
+
+            // Remove the OrderProduct from the database
+            orderProductRepository.delete(orderProduct);
+
+            // Remove the OrderProduct from the cart's list
+            cart.getOrderProducts().remove(orderProduct);
+
+            // Save the cart to update its state
+            orderRepository.save(cart);
+        } else {
+            throw new Exception("Product not found in cart");
+        }
+    }
+
 }
 
 

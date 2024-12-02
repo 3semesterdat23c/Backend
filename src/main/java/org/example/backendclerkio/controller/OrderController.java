@@ -23,10 +23,11 @@ public class OrderController {
     private final OrderService orderService;
     private final UserService userService;
 
-    public OrderController(OrderService orderService, UserService userService){
+    public OrderController(OrderService orderService, UserService userService) {
         this.orderService = orderService;
         this.userService = userService;
     }
+
     private UserResponseDTO getCurrentUserDTO(Principal principal) throws Exception {
         User user = userService.findByUsername(principal.getName());
         return new UserResponseDTO(
@@ -37,7 +38,6 @@ public class OrderController {
                 user.isAdmin()
         );
     }
-
 
 
     @PostMapping("/cart")
@@ -62,5 +62,22 @@ public class OrderController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteProductFromCart(Principal principal, @RequestBody CartItemResponseDTO cartItemResponseDTO) {
+        try {
+            // Delegate the user retrieval to the service
+            UserResponseDTO userDTO = getCurrentUserDTO(principal);
+
+            // Call the service to remove the product from the cart
+            orderService.removeItemFromCart(userDTO, cartItemResponseDTO);
+
+            return ResponseEntity.ok("Product removed from cart successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+
+
 
 }
