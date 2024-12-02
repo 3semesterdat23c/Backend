@@ -28,4 +28,9 @@ public class Category {
     @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<Product> products;
+
+    public Category(String categoryName, Set<Product> products) {
+        this.categoryName = categoryName;
+        this.products = products;
+    }
 }
