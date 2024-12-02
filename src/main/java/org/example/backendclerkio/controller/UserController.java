@@ -99,6 +99,18 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{userMail}/setadmin")
+    public ResponseEntity<?> makeUserAdmin(@PathVariable String userMail){
+        if (!userService.userExistsByEmail(userMail)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with mail: " + userMail + " not found.");
+        }
+        else {
+            userService.makeUserAdmin(userMail);
+            return ResponseEntity.ok("User made admin");
+        }
+    }
+
     @DeleteMapping("/{userId}/delete")
     public ResponseEntity<String> deleteUser(@PathVariable int userId) {
         if (!userService.userExistsByUserId(userId)) {
