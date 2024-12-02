@@ -131,23 +131,31 @@ public class ProductService {
         if (existingProduct == null) {
             throw new IllegalArgumentException("Booking not found");
         }
+
         String categoryName = productRequestDTO.category();
 
         // Check if the category exists, or create it if it doesn't
         Category category = categoryRepository.findByCategoryName(categoryName)
                 .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
 
-        // Create a set of categories for the product (you can handle multiple categories if needed)
-        Set<Category> categories = new HashSet<>();
-        categories.add(category);
+        // Handle tags
+        Set<Tag> tags = new HashSet<>();
+        for (String tagName : productRequestDTO.tags()) {
+            Tag tag = tagRepository.findByTagName(tagName)
+                    .orElseGet(() -> tagRepository.save(new Tag(tagName)));
+            tags.add(tag);
+        }
 
+        // Set the properties for the product
         existingProduct.setName(productRequestDTO.title());
         existingProduct.setPrice(productRequestDTO.price());
         existingProduct.setDescription(productRequestDTO.description());
         existingProduct.setStockCount(productRequestDTO.stock());
-        existingProduct.setCategory(category);
+        existingProduct.setCategory(category);  // Single category set here
         existingProduct.setImages(productRequestDTO.images());
         existingProduct.setDiscount(productRequestDTO.discountPercentage());
+        existingProduct.setTags(tags);  // Set the tags for the product
+
         return productRepository.save(existingProduct);
     }
 
