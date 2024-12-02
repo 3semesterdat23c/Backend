@@ -1,3 +1,4 @@
+/*
 package org.example.backendclerkio.entity;
 
 import jakarta.persistence.*;
@@ -11,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "order_")
+@Table(name = "order")
 public class Order {
 
     @Id
@@ -30,3 +31,4 @@ public class Order {
     private boolean isPaid;
 
 }
+*/

@@ -34,7 +34,6 @@ public class Product {
     @Column(name = "stock_count", nullable = false)
     private int stockCount;
 
-    // Change from single String to List<String>
     @ElementCollection
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
@@ -43,31 +42,36 @@ public class Product {
     @Column(name = "discount")
     private float discount;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "category_product",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    @JsonManagedReference // Indicates this is the "parent" side of the relationship
-    private Set<Category> categories;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
-    // Convenience constructor
-    public Product(String title, String description, float price, int stock, Set<Category> categories, List<String> images, float discount) {
-        this.name = title;
+    @ManyToMany
+    @JoinTable(
+            name = "product_tags",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tag> tags;
+
+    // Constructor with tags and category
+    public Product(String name, String description, float price, int stockCount, Category category, List<String> images, float discount, Set<Tag> tags) {
+        this.name = name;
         this.description = description;
         this.price = price;
-        this.stockCount = stock;
-        this.discount = discount;
-        this.categories = categories;
+        this.stockCount = stockCount;
+        this.category = category;
         this.images = images;
+        this.discount = discount;
+        this.tags = tags;
     }
 
-    public Product(String title, String description, float price, int stock, String category, List<String> images, float discount) {
-        this.name = title;
+    // Constructor without tags for creation when tags are not provided
+    public Product(String name, String description, float price, int stockCount, Category category, List<String> images, float discount) {
+        this.name = name;
         this.description = description;
         this.price = price;
-        this.stockCount = stock;
+        this.stockCount = stockCount;
+        this.category = category;
         this.images = images;
         this.discount = discount;
     }

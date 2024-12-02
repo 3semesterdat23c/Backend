@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.util.Set;
 
@@ -25,8 +24,7 @@ public class Category {
     @Column(name = "category_name", nullable = false)
     private String categoryName;
 
-    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
-    @JsonBackReference
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private Set<Product> products;
 
     public Category(String categoryName) {

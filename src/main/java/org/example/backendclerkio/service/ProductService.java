@@ -5,8 +5,10 @@ import org.example.backendclerkio.dto.ProductRequestDTO;
 import org.example.backendclerkio.dto.ProductsResponseDTO;
 import org.example.backendclerkio.entity.Category;
 import org.example.backendclerkio.entity.Product;
+import org.example.backendclerkio.entity.Tag;
 import org.example.backendclerkio.repository.CategoryRepository;
 import org.example.backendclerkio.repository.ProductRepository;
+import org.example.backendclerkio.repository.TagRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,10 +26,12 @@ public class ProductService {
 
     private ProductRepository productRepository;
     private CategoryRepository categoryRepository;
+    private TagRepository tagRepository;
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, WebClient.Builder webClient) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, TagRepository tagRepository, WebClient.Builder webClient) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.tagRepository = tagRepository;
         this.webClient = webClient.build();
     }
 
@@ -83,24 +87,34 @@ public class ProductService {
 
         // Check if the category exists, or create it if it doesn't
         Category category = categoryRepository.findByCategoryName(categoryName)
-                .orElseGet(() -> categoryRepository.save(new Category(0, categoryName, 0, null)));
+                .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
 
-        // Create a set of categories for the product (you can handle multiple categories if needed)
-        Set<Category> categories = new HashSet<>();
-        categories.add(category);
+        // Create a set of tags
+        Set<Tag> tags = new HashSet<>();
+        for (String tagName : productRequestDTO.tags()) {
+            // Check if the tag already exists, if not create and save it
+            Tag tag = tagRepository.findByTagName(tagName)
+                    .orElseGet(() -> tagRepository.save(new Tag(tagName)));
 
-        // Create the product with the associated category
+            // Add the tag to the set
+            tags.add(tag);
+        }
+
+        // Create the product with the category and tags
         Product product = new Product(
                 productRequestDTO.title(),
                 productRequestDTO.description(),
                 productRequestDTO.price(),
                 productRequestDTO.stock(),
-                categories,  // Associate the found/created category
+                category, // Associate the found/created category
                 productRequestDTO.images(),
-                productRequestDTO.discountPercentage()
+                productRequestDTO.discountPercentage(),
+                tags // Include tags as a Set of Tag entities
         );
 
+        // Save the product to the repository
         productRepository.save(product);
+
         return product;
     }
 
@@ -121,7 +135,7 @@ public class ProductService {
 
         // Check if the category exists, or create it if it doesn't
         Category category = categoryRepository.findByCategoryName(categoryName)
-                .orElseGet(() -> categoryRepository.save(new Category(0, categoryName, 0, null)));
+                .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
 
         // Create a set of categories for the product (you can handle multiple categories if needed)
         Set<Category> categories = new HashSet<>();
@@ -131,7 +145,7 @@ public class ProductService {
         existingProduct.setPrice(productRequestDTO.price());
         existingProduct.setDescription(productRequestDTO.description());
         existingProduct.setStockCount(productRequestDTO.stock());
-        existingProduct.setCategories(categories);
+        existingProduct.setCategory(category);
         existingProduct.setImages(productRequestDTO.images());
         existingProduct.setDiscount(productRequestDTO.discountPercentage());
         return productRepository.save(existingProduct);

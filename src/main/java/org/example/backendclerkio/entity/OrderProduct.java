@@ -1,3 +1,4 @@
+/*
 package org.example.backendclerkio.entity;
 
 import jakarta.persistence.*;
@@ -32,3 +33,4 @@ public class OrderProduct {
 
 
 }
+*/
