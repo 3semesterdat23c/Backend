@@ -50,6 +50,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         "/api/v1/users/{userId}",
                         "/api/v1/users/register",
                         "/api/v1/users/login",
+                        "/api/v1/users/{usermail}/setadmin",
+                        "/api/v1/users/{usermail}/user",
                         "/api/v1/users/{userId}/update",
                         "/api/v1/users/{userId}/delete",
                         "/api/v1/users/logout",
