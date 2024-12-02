@@ -3,13 +3,17 @@ package org.example.backendclerkio.config;
 import jakarta.annotation.PostConstruct;
 import org.example.backendclerkio.dto.ProductResponseDTO;
 import org.example.backendclerkio.dto.ProductsResponseDTO;
+import org.example.backendclerkio.dto.UserRequestDTO;
 import org.example.backendclerkio.entity.Category;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.entity.Tag;
+import org.example.backendclerkio.entity.User;
 import org.example.backendclerkio.repository.CategoryRepository;
 import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.repository.TagRepository;
+import org.example.backendclerkio.repository.UserRepository;
 import org.example.backendclerkio.service.ProductService;
+import org.example.backendclerkio.service.UserService;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.HashSet;
@@ -25,15 +29,29 @@ public class InitData {
     private final TagRepository tagRepository;
     private final ProductService productService;
 
-    public InitData(ProductRepository productRepository, CategoryRepository categoryRepository, TagRepository tagRepository, ProductService productService) {
+    //TEST
+    private final UserService userService;
+    private final UserRepository userRepository;
+
+    public InitData(ProductRepository productRepository, CategoryRepository categoryRepository, TagRepository tagRepository, UserService userService, UserRepository userRepository, ProductService productService) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.tagRepository = tagRepository;
+        this.userService = userService;
+        this.userRepository = userRepository;
         this.productService = productService;
     }
 
     @PostConstruct
     public void init() {
+
+        //TEST
+        userService.registerUser(new UserRequestDTO("lol", "lol", "lol@lol.dk", "lol"));
+        User user = userService.findByUserEmail("lol@lol.dk").get();
+        user.setAdmin(true);
+        userRepository.save(user);
+
+
         if (productRepository.count() == 0) {
             try {
                 ProductsResponseDTO response = productService.getAllProducts().block();
@@ -56,35 +74,29 @@ public class InitData {
     }
 
     private Product mapToEntity(ProductResponseDTO dto) {
-        // Handle category manually
         String categoryName = dto.category();
         Category category = categoryRepository.findByCategoryName(categoryName)
                 .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
 
-        // Map the tags from the DTO to a Set of Tag entities
         Set<Tag> tags = new HashSet<>();
         for (String tagName : dto.tags()) {
-            // Check if the tag already exists, or create it if it doesn't
             Tag tag = tagRepository.findByTagName(tagName)
                     .orElseGet(() -> tagRepository.save(new Tag(tagName)));
 
-            // Add the tag to the set
             tags.add(tag);
         }
 
-        // Create the product with the category and tags
         Product product = new Product(
                 dto.title(),
                 dto.description(),
                 dto.price(),
                 dto.stock(),
-                category, // Associate the found/created category
+                category,
                 dto.images(),
                 dto.discountPercentage(),
-                tags // Include tags as a Set of Tag entities
+                tags
         );
 
-        // Return the product
         return product;
     }
 }
