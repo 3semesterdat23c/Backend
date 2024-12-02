@@ -48,6 +48,18 @@ public class UserController {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    @GetMapping("/{userMail}/user")
+    public ResponseEntity<?> getUserByMail(@PathVariable String userMail) {
+        if (!userService.userExistsByEmail(userMail)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with mail: " + userMail + " not found.");
+        }
+
+        return userService.findByUserEmail(userMail)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
     @GetMapping("")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<UserResponseDTO> users = userService.getAllUsers();
