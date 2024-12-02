@@ -1,5 +1,6 @@
 package org.example.backendclerkio.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class Category {
     private String categoryName;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @JsonBackReference
     private Set<Product> products;
 
     public Category(String categoryName) {
