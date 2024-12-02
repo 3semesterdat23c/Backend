@@ -64,15 +64,4 @@ public class Product {
         this.discount = discount;
         this.tags = tags;
     }
-
-    // Constructor without tags for creation when tags are not provided
-    public Product(String name, String description, float price, int stockCount, Category category, List<String> images, float discount) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.stockCount = stockCount;
-        this.category = category;
-        this.images = images;
-        this.discount = discount;
-    }
 }
