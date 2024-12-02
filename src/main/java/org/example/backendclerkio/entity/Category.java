@@ -29,8 +29,7 @@ public class Category {
     @JsonBackReference
     private Set<Product> products;
 
-    public Category(String categoryName, Set<Product> products) {
+    public Category(String categoryName) {
         this.categoryName = categoryName;
-        this.products = products;
     }
 }
