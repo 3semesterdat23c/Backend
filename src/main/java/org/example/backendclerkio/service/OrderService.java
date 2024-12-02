@@ -89,7 +89,6 @@ public class OrderService {
     }
 
     public List<CartItemResponseDTO> getAllProductsInCart(UserResponseDTO userDTO) throws Exception {
-        // Fetch the user entity from the DTO
         User user = userRepository.findById(userDTO.userId())
                 .orElseThrow(() -> new Exception("User not found"));
 
