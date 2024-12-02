@@ -52,6 +52,10 @@ public class Product {
     @JsonManagedReference // Indicates this is the "parent" side of the relationship
     private Set<Category> categories;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private List<OrderProduct> orderProducts;
+
+
     // Convenience constructor
     public Product(String title, String description, float price, int stock, Set<Category> categories, List<String> images, float discount) {
         this.name = title;

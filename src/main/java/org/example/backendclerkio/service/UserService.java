@@ -138,6 +138,11 @@ public class UserService {
     public boolean userExistsByUserId(int userId) {
         return userRepository.existsByUserId(userId);
     }
+    public User findByUsername(String username) throws Exception {
+        return userRepository.findByUserEmail(username)
+                .orElseThrow(() -> new Exception("User not found"));
+    }
+
 
 
 
