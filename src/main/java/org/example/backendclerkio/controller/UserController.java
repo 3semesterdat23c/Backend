@@ -77,8 +77,9 @@ public class UserController {
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new JwtResponseModelDTO("Bad Credentials"));
         }
+        boolean isAdmin = userService.findByUserEmail(loginRequestDTO.email()).get().isAdmin();
         final UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(loginRequestDTO.email());
-        final String jwtToken = jwtTokenManager.generateJwtToken(userDetails);
+        final String jwtToken = jwtTokenManager.generateJwtToken(userDetails, isAdmin);
         return ResponseEntity.ok(new JwtResponseModelDTO(jwtToken));
     }
 
