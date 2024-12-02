@@ -23,9 +23,9 @@ public class ProductController {
 
     @GetMapping("")
     public Page<Product> findAll(Pageable pageable) {
-        Page<Product> products = productService.findAll(pageable);
-        return products;
+        return productService.findAll(pageable);
     }
+
 
 
     @PostMapping("/create")
