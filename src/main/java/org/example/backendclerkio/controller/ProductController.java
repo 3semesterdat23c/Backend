@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("api/v1")
+@RequestMapping("api/v1/products")
 @RestController
 @CrossOrigin
 public class ProductController {
@@ -21,10 +21,11 @@ public class ProductController {
 
     }
 
-    @GetMapping("/products")
-    public Page<Product> getAllProducts(Pageable pageable) {
-       return productService.findAll(pageable);
-}
+    @GetMapping("")
+    public Page<Product> findAll(Pageable pageable) {
+        Page<Product> products = productService.findAll(pageable);
+        return products;
+    }
 
 
     @PostMapping("/create")
@@ -46,7 +47,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}/update")
-    public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody Product updatedProduct) {
+    public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody ProductRequestDTO updatedProduct) {
         try {
             Product updated = productService.updateProduct(id, updatedProduct);
             return ResponseEntity.ok(updated);
@@ -57,7 +58,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/products/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable int id) {
         try {
             Product product = productService.getProductById(id);

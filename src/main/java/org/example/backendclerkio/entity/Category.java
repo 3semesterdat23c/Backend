@@ -1,34 +1,34 @@
 package org.example.backendclerkio.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.util.Set;
 
-@Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Entity
 @Table(name = "category")
 public class Category {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id",nullable = false)
+    @Column(name = "category_id", nullable = false)
     private int categoryId;
-    @Column (name = "category_name",nullable = false)
+
+    @Column(name = "category_name", nullable = false)
     private String categoryName;
-    @Column (name = "parent_category_id")
-    private int parentCategoryId;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH })
-    @JoinTable(
-            name = "category_product",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
+
+    @Column(name = "parent_category_id")
+    private Integer parentCategoryId;
+
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    @JsonBackReference
     private Set<Product> products;
 }

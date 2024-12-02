@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-@RequestMapping("api/v1")
+@RequestMapping("api/v1/users")
 @RestController
 public class UserController {
 
@@ -36,7 +36,7 @@ public class UserController {
         this.jwtTokenManager = jwtTokenManager;
     }
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<?> getUser(@PathVariable int userId) {
         if (!userService.userExistsByUserId(userId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -48,7 +48,7 @@ public class UserController {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @GetMapping("/users")
+    @GetMapping("")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<UserResponseDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
@@ -83,7 +83,7 @@ public class UserController {
         return ResponseEntity.ok(new JwtResponseModelDTO(jwtToken));
     }
 
-    @PutMapping("/users/{userId}/update")
+    @PutMapping("/{userId}/update")
     public ResponseEntity<?> updateUser(@PathVariable int userId, @RequestBody UserRequestDTO userRequestDTO) {
         if (!userService.userExistsByUserId(userId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -99,7 +99,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/users/{userId}/delete")
+    @DeleteMapping("/{userId}/delete")
     public ResponseEntity<String> deleteUser(@PathVariable int userId) {
         if (!userService.userExistsByUserId(userId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
