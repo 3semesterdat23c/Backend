@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,7 +31,12 @@ public class Order {
     private long orderDate;
 
     @Column (name = "is_paid", nullable = false)
-    private boolean isPaid;
+    private boolean paid = false;
+
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderProduct> orderProducts = new ArrayList<>();
+
 
 }
 */

@@ -1,5 +1,6 @@
 package org.example.backendclerkio.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +35,7 @@ public class Product {
     @Column(name = "stock_count", nullable = false)
     private int stockCount;
 
+    // Change from single String to List<String>
     @ElementCollection
     @CollectionTable(name = "product_images", joinColumns = @JoinColumn(name = "product_id"))
     @Column(name = "image_url")
@@ -54,6 +56,24 @@ public class Product {
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<OrderProduct> orderProducts;
+
+
+    // Convenience constructor
+    public Product(String title, String description, float price, int stock, Set<Category> categories, List<String> images, float discount) {
+        this.name = title;
+        this.description = description;
+        this.price = price;
+        this.stockCount = stock;
+        this.discount = discount;
+        this.categories = categories;
+        this.images = images;
+    }
+
+    public Product(String title, String description, float price, int stock, String category, List<String> images, float discount) {
+        this.name = title;
     // Constructor with tags and category
     public Product(String name, String description, float price, int stockCount, Category category, List<String> images, float discount, Set<Tag> tags) {
         this.name = name;

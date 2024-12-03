@@ -107,6 +107,15 @@ public class UserService {
         }
     }
 
+    public void makeUserAdmin(String userMail) {
+        Optional<User> optionalUser = userRepository.findByUserEmail(userMail);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setAdmin(true);;
+            userRepository.save(user);
+        }
+    }
+
     public boolean deleteUser(int userId) {
         Optional<User> optionalUser = userRepository.findByUserId(userId);
 
@@ -129,6 +138,11 @@ public class UserService {
     public boolean userExistsByUserId(int userId) {
         return userRepository.existsByUserId(userId);
     }
+    public User findByUsername(String username) throws Exception {
+        return userRepository.findByUserEmail(username)
+                .orElseThrow(() -> new Exception("User not found"));
+    }
+
 
 
 
