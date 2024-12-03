@@ -21,10 +21,24 @@ public class ProductController {
 
     }
 
+   /* @GetMapping("")
+    public Page<Product> findAll(
+            Pageable pageable,
+            @RequestParam(required = false, defaultValue = "false") boolean lowStock,
+            @RequestParam(required = false, defaultValue = "false") boolean outOfStock
+    ) {
+        return productService.findAll(pageable, lowStock, outOfStock);
+    }*/
+
     @GetMapping("")
-    public Page<Product> findAll(Pageable pageable) {
-        return productService.findAll(pageable);
+    public Page<Product> findAll(
+            Pageable pageable,
+            @RequestParam(defaultValue = "false") boolean lowStock,
+            @RequestParam(defaultValue = "false") boolean outOfStock) {
+        return productService.findFilteredProducts(pageable, lowStock, outOfStock);
     }
+
+
 
 
 
