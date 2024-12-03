@@ -1,5 +1,6 @@
 package org.example.backendclerkio.controller;
 
+import org.example.backendclerkio.dto.ApiResponse;
 import org.example.backendclerkio.dto.CartItemRequestDTO;
 import org.example.backendclerkio.dto.CartItemResponseDTO;
 import org.example.backendclerkio.dto.UserResponseDTO;
@@ -41,16 +42,15 @@ public class OrderController {
 
 
     @PostMapping("/cart")
-    public ResponseEntity<String> addToCart(@RequestBody CartItemRequestDTO cartItemRequestDTO, Principal principal) {
+    public ResponseEntity<ApiResponse> addToCart(@RequestBody CartItemRequestDTO cartItemRequestDTO, Principal principal) {
         try {
             UserResponseDTO userDTO = getCurrentUserDTO(principal);
             orderService.addToCart(userDTO, cartItemRequestDTO);
-            return ResponseEntity.ok("Product added to cart successfully.");
+            return ResponseEntity.ok(new ApiResponse("Product added to cart successfully."));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            return ResponseEntity.badRequest().body(new ApiResponse("Error: " + e.getMessage()));
         }
     }
-
 
     @GetMapping("/cart")
     public ResponseEntity<List<CartItemResponseDTO>> getAllProductsInCart(Principal principal) {

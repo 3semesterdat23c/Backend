@@ -32,6 +32,7 @@ public class Order {
     @Column (name = "is_paid", nullable = false)
     private boolean paid = false;
 
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderProduct> orderProducts = new ArrayList<>();
 
