@@ -72,6 +72,18 @@ public class ProductController {
         }
     }
 
+    @PutMapping("/{id}/update/stock")
+    public ResponseEntity<?> updateStock(@PathVariable int id, @RequestBody int stock) {
+        try {
+            Product updated = productService.updateStock(id, stock);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the booking.");
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable int id) {
         try {

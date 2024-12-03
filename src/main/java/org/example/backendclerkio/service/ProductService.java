@@ -141,6 +141,17 @@ public class ProductService {
 
     }
 
+    public Product updateStock(int id, int newStockCount){
+        Product productToUpdate = productRepository.findById(id).orElse(null);
+        if (productToUpdate == null) {
+            throw new IllegalArgumentException("Booking not found");
+        }
+
+        productToUpdate.setStockCount(newStockCount);
+
+        return productRepository.save(productToUpdate);
+    }
+
     public Product updateProduct(int id, ProductRequestDTO productRequestDTO) {
         Product existingProduct = productRepository.findById(id).orElse(null);
         if (existingProduct == null) {
