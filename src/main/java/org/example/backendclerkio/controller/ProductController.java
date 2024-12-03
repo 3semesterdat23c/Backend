@@ -21,22 +21,17 @@ public class ProductController {
 
     }
 
-   /* @GetMapping("")
-    public Page<Product> findAll(
-            Pageable pageable,
-            @RequestParam(required = false, defaultValue = "false") boolean lowStock,
-            @RequestParam(required = false, defaultValue = "false") boolean outOfStock
-    ) {
-        return productService.findAll(pageable, lowStock, outOfStock);
-    }*/
-
     @GetMapping("")
     public Page<Product> findAll(
             Pageable pageable,
+            @RequestParam(required = false) String category,
             @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(defaultValue = "false") boolean lowStock,
             @RequestParam(defaultValue = "false") boolean outOfStock
     ) {
+        if (category != null) {
+            return productService.findByCategory(category, pageable);
+        }
         if (!search.isEmpty()) {
             return productService.searchProductsByName(search, pageable);
         } else if (lowStock || outOfStock) {
@@ -44,9 +39,6 @@ public class ProductController {
         }
         return productService.findAll(pageable);
     }
-
-
-
 
 
 

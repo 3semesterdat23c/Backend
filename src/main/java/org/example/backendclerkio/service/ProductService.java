@@ -189,6 +189,10 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
+
+    public Page<Product> findByCategory(String category, Pageable pageable) {
+        return productRepository.findProductsByCategory_CategoryName(category, pageable);
+    }
     public Page<Product> searchProductsByName(String name, Pageable pageable) {
         return productRepository.findByNameContainingIgnoreCase(name, pageable);
     }
