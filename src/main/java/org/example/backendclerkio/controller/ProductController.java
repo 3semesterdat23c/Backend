@@ -33,10 +33,18 @@ public class ProductController {
     @GetMapping("")
     public Page<Product> findAll(
             Pageable pageable,
+            @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(defaultValue = "false") boolean lowStock,
-            @RequestParam(defaultValue = "false") boolean outOfStock) {
-        return productService.findFilteredProducts(pageable, lowStock, outOfStock);
+            @RequestParam(defaultValue = "false") boolean outOfStock
+    ) {
+        if (!search.isEmpty()) {
+            return productService.searchProductsByName(search, pageable);
+        } else if (lowStock || outOfStock) {
+            return productService.findFilteredProducts(pageable, lowStock, outOfStock);
+        }
+        return productService.findAll(pageable);
     }
+
 
 
 
