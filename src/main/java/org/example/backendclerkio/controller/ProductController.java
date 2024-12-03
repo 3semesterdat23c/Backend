@@ -22,7 +22,10 @@ public class ProductController {
     }
 
     @GetMapping("")
-    public Page<Product> findAll(Pageable pageable) {
+    public Page<Product> findAll(@RequestParam(required = false) String category, Pageable pageable) {
+        if (category != null) {
+            return productService.findByCategory(category, pageable);
+        }
         return productService.findAll(pageable);
     }
 
