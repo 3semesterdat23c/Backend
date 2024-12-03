@@ -37,7 +37,7 @@ public class OrderService {
 
 
     private Order getCartForUser(User user) {
-        Optional<Order> optionalCart = orderRepository.findByUserAndPaid(user, false);
+        Optional<Order> optionalCart = orderRepository.findByUserAndPaidWithProducts(user, false);
 
         if (optionalCart.isPresent()) {
             return optionalCart.get();
@@ -49,7 +49,6 @@ public class OrderService {
             return orderRepository.save(newCart);
         }
     }
-
     public void addToCart(UserResponseDTO userDTO, CartItemRequestDTO cartItemDTO) throws Exception {
         // Fetch the user entity from the DTO
         User user = userRepository.findById(userDTO.userId())
@@ -71,7 +70,6 @@ public class OrderService {
             // Update the quantity
             OrderProduct orderProduct = optionalOrderProduct.get();
             orderProduct.setQuantity(orderProduct.getQuantity() + cartItemDTO.quantity());
-            orderProductRepository.save(orderProduct);
         } else {
             // Create a new OrderProduct
             OrderProduct orderProduct = new OrderProduct();
@@ -82,10 +80,10 @@ public class OrderService {
 
             // Add to the cart
             cart.getOrderProducts().add(orderProduct);
-
-            // Save the new OrderProduct
-            orderProductRepository.save(orderProduct);
         }
+
+        // Save the cart (cascades to OrderProduct)
+        orderRepository.save(cart);
     }
 
     public List<CartItemResponseDTO> getAllProductsInCart(UserResponseDTO userDTO) throws Exception {
@@ -130,18 +128,16 @@ public class OrderService {
         if (optionalOrderProduct.isPresent()) {
             OrderProduct orderProduct = optionalOrderProduct.get();
 
-            // Remove the OrderProduct from the database
-            orderProductRepository.delete(orderProduct);
-
             // Remove the OrderProduct from the cart's list
             cart.getOrderProducts().remove(orderProduct);
 
-            // Save the cart to update its state
+            // Since orphanRemoval = true, the OrderProduct will be deleted from the database
             orderRepository.save(cart);
         } else {
             throw new Exception("Product not found in cart");
         }
     }
+
 
 }
 
