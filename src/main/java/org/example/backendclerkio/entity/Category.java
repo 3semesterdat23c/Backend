@@ -1,11 +1,11 @@
 package org.example.backendclerkio.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.util.Set;
 
@@ -25,10 +25,11 @@ public class Category {
     @Column(name = "category_name", nullable = false)
     private String categoryName;
 
-    @Column(name = "parent_category_id")
-    private Integer parentCategoryId;
-
-    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @JsonBackReference
     private Set<Product> products;
+
+    public Category(String categoryName) {
+        this.categoryName = categoryName;
+    }
 }

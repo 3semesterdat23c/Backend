@@ -44,14 +44,17 @@ public class Product {
     @Column(name = "discount")
     private float discount;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    @JsonManagedReference
+    private Category category;
+
+    @ManyToMany
     @JoinTable(
-            name = "category_product",
+            name = "product_tags",
             joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    @JsonManagedReference // Indicates this is the "parent" side of the relationship
-    private Set<Category> categories;
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tag> tags;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     @JsonIgnore
@@ -59,22 +62,25 @@ public class Product {
 
 
     // Convenience constructor
-    public Product(String title, String description, float price, int stock, Set<Category> categories, List<String> images, float discount) {
+    public Product(String title, String description, float price, int stock, Category category, List<String> images, float discount) {
         this.name = title;
         this.description = description;
         this.price = price;
         this.stockCount = stock;
         this.discount = discount;
-        this.categories = categories;
+        this.category = category;
         this.images = images;
     }
 
-    public Product(String title, String description, float price, int stock, String category, List<String> images, float discount) {
-        this.name = title;
+    // Constructor with tags and category
+    public Product(String name, String description, float price, int stockCount, Category category, List<String> images, float discount, Set<Tag> tags) {
+        this.name = name;
         this.description = description;
         this.price = price;
-        this.stockCount = stock;
+        this.stockCount = stockCount;
+        this.category = category;
         this.images = images;
         this.discount = discount;
+        this.tags = tags;
     }
 }
