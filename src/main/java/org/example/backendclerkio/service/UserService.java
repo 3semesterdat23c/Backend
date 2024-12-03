@@ -89,7 +89,6 @@ public class UserService {
             user.setFirstName(userRequestDTO.firstName());
             user.setLastName(userRequestDTO.lastName());
             user.setUserEmail(userRequestDTO.email());
-            user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
 
             User updatedUser = userRepository.save(user);
 
@@ -107,7 +106,7 @@ public class UserService {
         }
     }
 
-    /*public Optional<UserResponseDTO> updatePassword(int userId, UserRequestDTO userRequestDTO) {
+    public Optional<UserResponseDTO> updatePassword(int userId, UserRequestDTO userRequestDTO) {
         Optional<User> optionalUser = userRepository.findByUserId(userId);
 
         if (optionalUser.isPresent()) {
@@ -128,7 +127,7 @@ public class UserService {
         } else {
             return Optional.empty();
         }
-    }*/
+    }
 
     public void makeUserAdmin(String userMail) {
         Optional<User> optionalUser = userRepository.findByUserEmail(userMail);
