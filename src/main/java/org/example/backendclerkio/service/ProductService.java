@@ -77,7 +77,22 @@ public class ProductService {
                 });
     }
 
-    public Page<Product> findAll(Pageable pageable) {
+    public Page<Product> findAll(Pageable pageable){
+        return productRepository.findAll(pageable);
+    }
+
+    public Page<Product> findFilteredProducts(Pageable pageable, boolean lowStock, boolean outOfStock) {
+        if (lowStock && outOfStock) {
+            // Return products with stock count between 0 and 5 (inclusive)
+            return productRepository.findByStockCountBetween(0, 5, pageable);
+        } else if (lowStock) {
+            // Return products with stock count between 1 and 5 (inclusive)
+            return productRepository.findByStockCountBetween(1, 5, pageable);
+        } else if (outOfStock) {
+            // Return products with stock count of 0
+            return productRepository.findByStockCount(0, pageable);
+        }
+        // Return all products if no filters are applied
         return productRepository.findAll(pageable);
     }
 
