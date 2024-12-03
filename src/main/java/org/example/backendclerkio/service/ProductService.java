@@ -77,7 +77,22 @@ public class ProductService {
                 });
     }
 
-    public Page<Product> findAll(Pageable pageable) {
+    public Page<Product> findAll(Pageable pageable){
+        return productRepository.findAll(pageable);
+    }
+
+    public Page<Product> findFilteredProducts(Pageable pageable, boolean lowStock, boolean outOfStock) {
+        if (lowStock && outOfStock) {
+            // Return products with stock count between 0 and 5 (inclusive)
+            return productRepository.findByStockCountBetween(0, 5, pageable);
+        } else if (lowStock) {
+            // Return products with stock count between 1 and 5 (inclusive)
+            return productRepository.findByStockCountBetween(1, 5, pageable);
+        } else if (outOfStock) {
+            // Return products with stock count of 0
+            return productRepository.findByStockCount(0, pageable);
+        }
+        // Return all products if no filters are applied
         return productRepository.findAll(pageable);
     }
 
@@ -126,6 +141,17 @@ public class ProductService {
 
     }
 
+    public Product updateStock(int id, int newStockCount){
+        Product productToUpdate = productRepository.findById(id).orElse(null);
+        if (productToUpdate == null) {
+            throw new IllegalArgumentException("Booking not found");
+        }
+
+        productToUpdate.setStockCount(newStockCount);
+
+        return productRepository.save(productToUpdate);
+    }
+
     public Product updateProduct(int id, ProductRequestDTO productRequestDTO) {
         Product existingProduct = productRepository.findById(id).orElse(null);
         if (existingProduct == null) {
@@ -166,6 +192,9 @@ public class ProductService {
 
     public Page<Product> findByCategory(String category, Pageable pageable) {
         return productRepository.findProductsByCategory_CategoryName(category, pageable);
+    }
+    public Page<Product> searchProductsByName(String name, Pageable pageable) {
+        return productRepository.findByNameContainingIgnoreCase(name, pageable);
     }
 }
 

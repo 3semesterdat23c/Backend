@@ -53,10 +53,12 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         "/api/v1/users/{usermail}/setadmin",
                         "/api/v1/users/{usermail}/user",
                         "/api/v1/users/{userId}/update",
+                        "/api/v1/users/{userId}/updatepassword",
                         "/api/v1/users/{userId}/delete",
                         "/api/v1/users/logout",
                         "/api/vi/order/cart",
-                        "/api/v1/order/delete"
+                        "/api/v1/order/delete",
+                        "/api/v1/products/{id}/update/stock"
                         )
 
                 .permitAll()
