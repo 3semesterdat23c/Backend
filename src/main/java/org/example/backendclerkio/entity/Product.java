@@ -62,18 +62,16 @@ public class Product {
 
 
     // Convenience constructor
-    public Product(String title, String description, float price, int stock, Set<Category> categories, List<String> images, float discount) {
+    public Product(String title, String description, float price, int stock, Category category, List<String> images, float discount) {
         this.name = title;
         this.description = description;
         this.price = price;
         this.stockCount = stock;
         this.discount = discount;
-        this.categories = categories;
+        this.category = category;
         this.images = images;
     }
 
-    public Product(String title, String description, float price, int stock, String category, List<String> images, float discount) {
-        this.name = title;
     // Constructor with tags and category
     public Product(String name, String description, float price, int stockCount, Category category, List<String> images, float discount, Set<Tag> tags) {
         this.name = name;

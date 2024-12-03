@@ -46,10 +46,12 @@ public class InitData {
     public void init() {
 
         //TEST
-        userService.registerUser(new UserRequestDTO("lol", "lol", "lol@lol.dk", "lol"));
-        User user = userService.findByUserEmail("lol@lol.dk").get();
-        user.setAdmin(true);
-        userRepository.save(user);
+        if (userRepository.count() == 0) {
+            userService.registerUser(new UserRequestDTO("lol", "lol", "lol@lol.dk", "lol"));
+            User user = userService.findByUserEmail("lol@lol.dk").get();
+            user.setAdmin(true);
+            userRepository.save(user);
+        }
 
 
         if (productRepository.count() == 0) {

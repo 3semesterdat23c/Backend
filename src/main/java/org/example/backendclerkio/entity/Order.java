@@ -1,4 +1,3 @@
-/*
 package org.example.backendclerkio.entity;
 
 import jakarta.persistence.*;
@@ -15,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "order")
+@Table(name = "order_")
 public class Order {
 
     @Id
@@ -39,4 +38,3 @@ public class Order {
 
 
 }
-*/
