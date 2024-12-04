@@ -12,6 +12,7 @@ import org.example.backendclerkio.repository.OrderRepository;
 import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,10 +29,10 @@ public class OrderService {
     private final OrderProductRepository orderProductRepository;
     private final UserRepository userRepository;
 
-    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository, UserRepository userRepository){
-    this.orderRepository = orderRepository;
-    this.orderProductRepository = orderProductRepository;
-    this.productRepository = productRepository;
+    public OrderService(OrderRepository orderRepository, ProductRepository productRepository, OrderProductRepository orderProductRepository, UserRepository userRepository) {
+        this.orderRepository = orderRepository;
+        this.orderProductRepository = orderProductRepository;
+        this.productRepository = productRepository;
         this.userRepository = userRepository;
     }
 
@@ -49,6 +50,7 @@ public class OrderService {
             return orderRepository.save(newCart);
         }
     }
+
     public void addToCart(UserResponseDTO userDTO, CartItemRequestDTO cartItemDTO) throws Exception {
         // Fetch the user entity from the DTO
         User user = userRepository.findById(userDTO.userId())
@@ -139,7 +141,12 @@ public class OrderService {
     }
 
 
+
+
 }
+
+
+
 
 
 
