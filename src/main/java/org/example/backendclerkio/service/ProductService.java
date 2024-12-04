@@ -2,7 +2,7 @@ package org.example.backendclerkio.service;
 
 import org.example.backendclerkio.dto.ProductResponseDTO;
 import org.example.backendclerkio.dto.ProductRequestDTO;
-import org.example.backendclerkio.dto.ProductsResponseDTO;
+import org.example.backendclerkio.dto.ProductsRequestDTO;
 import org.example.backendclerkio.entity.Category;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.entity.Tag;
@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,37 +36,37 @@ public class ProductService {
     }
 
 
-    public Mono<ProductsResponseDTO> getProductsFromDummy() {
+    public Mono<ProductsRequestDTO> getProductsFromDummy() {
         return webClient.get()
                 .uri("https://dummyjson.com/products?limit=100")
                 .retrieve()
-                .bodyToMono(ProductsResponseDTO.class);
+                .bodyToMono(ProductsRequestDTO.class);
     }
 
-    public Mono<ProductsResponseDTO> getProductsFromAnotherDummy() {
+    public Mono<ProductsRequestDTO> getProductsFromAnotherDummy() {
         return webClient.get()
                 .uri("https://dummyjson.com/products?skip=100&limit=200")
                 .retrieve()
-                .bodyToMono(ProductsResponseDTO.class);
+                .bodyToMono(ProductsRequestDTO.class);
 
     }
 
-    public Mono<ProductsResponseDTO> getAllProducts() {
-        Mono<ProductsResponseDTO> firstBatchMono = getProductsFromDummy();
-        Mono<ProductsResponseDTO> secondBatchMono = getProductsFromAnotherDummy();
+    public Mono<ProductsRequestDTO> getAllProducts() {
+        Mono<ProductsRequestDTO> firstBatchMono = getProductsFromDummy();
+        Mono<ProductsRequestDTO> secondBatchMono = getProductsFromAnotherDummy();
 
         return Mono.zip(firstBatchMono, secondBatchMono)
                 .map(tuple -> {
-                    ProductsResponseDTO firstBatch = tuple.getT1();
-                    ProductsResponseDTO secondBatch = tuple.getT2();
+                    ProductsRequestDTO firstBatch = tuple.getT1();
+                    ProductsRequestDTO secondBatch = tuple.getT2();
 
                     // Combine the product lists
-                    List<ProductResponseDTO> combinedProducts = new ArrayList<>();
+                    List<ProductRequestDTO> combinedProducts = new ArrayList<>();
                     combinedProducts.addAll(firstBatch.products());
                     combinedProducts.addAll(secondBatch.products());
 
                     // Create a new ProductsResponseDTO with combined products
-                    ProductsResponseDTO combinedResponse = new ProductsResponseDTO(
+                    ProductsRequestDTO combinedResponse = new ProductsRequestDTO(
                             combinedProducts,
                             firstBatch.total() + secondBatch.total(), // Adjust total if necessary
                             firstBatch.skip(), // Adjust skip and limit as appropriate
@@ -121,18 +119,14 @@ public class ProductService {
 
 
         // Create the product with the category and tags
-        float price = BigDecimal.valueOf(productRequestDTO.price() / 100.0 * (100 - productRequestDTO.discountPercentage()))
-                .setScale(2, RoundingMode.HALF_UP)
-                .floatValue();
-
         Product product = new Product(
                 productRequestDTO.title(),
                 productRequestDTO.description(),
-                price,
-                productRequestDTO.stock(),
+                productRequestDTO.price(),
+                productRequestDTO.discountPrice(),
+                productRequestDTO.stockCount(),
                 category,
                 productRequestDTO.images(),
-                productRequestDTO.discountPercentage(),
                 tags
         );
 
@@ -180,19 +174,15 @@ public class ProductService {
                     .orElseGet(() -> tagRepository.save(new Tag(tagName)));
             tags.add(tag);
         }
-        float price = BigDecimal.valueOf(productRequestDTO.price() / 100.0 * (100 - productRequestDTO.discountPercentage()))
-                .setScale(2, RoundingMode.HALF_UP)
-                .floatValue();
-
 
         // Set the properties for the product
-        existingProduct.setName(productRequestDTO.title());
-        existingProduct.setPrice(price);
+        existingProduct.setTitle(productRequestDTO.title());
         existingProduct.setDescription(productRequestDTO.description());
-        existingProduct.setStockCount(productRequestDTO.stock());
+        existingProduct.setPrice(productRequestDTO.price());
+        existingProduct.setDiscountPrice(productRequestDTO.discountPrice());
+        existingProduct.setStockCount(productRequestDTO.stockCount());
         existingProduct.setCategory(category);  // Single category set here
         existingProduct.setImages(productRequestDTO.images());
-        existingProduct.setDiscount(productRequestDTO.discountPercentage());
         existingProduct.setTags(tags);  // Set the tags for the product
 
         return productRepository.save(existingProduct);
@@ -206,8 +196,8 @@ public class ProductService {
     public Page<Product> findByCategory(String category, Pageable pageable) {
         return productRepository.findProductsByCategory_CategoryName(category, pageable);
     }
-    public Page<Product> searchProductsByName(String name, Pageable pageable) {
-        return productRepository.findByNameContainingIgnoreCase(name, pageable);
+    public Page<Product> searchProductsByName(String title, Pageable pageable) {
+        return productRepository.findByTitleContainingIgnoreCase(title, pageable);
     }
 }
 
