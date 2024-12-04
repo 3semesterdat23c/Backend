@@ -8,10 +8,10 @@ public record ProductResponseDTO(
         @JsonProperty("id") int id,
         @JsonProperty("title") String title,
         @JsonProperty("description") String description,
-        @JsonProperty("price") float price,
-        @JsonProperty("stock") int stock,
+        @JsonProperty("price") double price,
+        @JsonProperty("discountPrice") double discountPrice,
+        @JsonProperty("stock") int stockCount,
         @JsonProperty("category") String category, // Treat category as a string
-        @JsonProperty("discountPercentage") float discountPercentage,
         @JsonProperty("images") List<String> images,
         @JsonProperty("tags") Set<String> tags // Use Set<String> for tags
 ) {}

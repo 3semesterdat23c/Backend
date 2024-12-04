@@ -103,7 +103,7 @@ public class OrderService {
                             : null;
                     return new CartItemResponseDTO(
                             product.getProductId(),
-                            product.getName(),
+                            product.getTitle(),
                             orderProduct.getQuantity(),
                             orderProduct.getPriceAtTimeOfOrder(),
                             imageUrl

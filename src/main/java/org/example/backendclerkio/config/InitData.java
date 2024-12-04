@@ -1,8 +1,7 @@
 package org.example.backendclerkio.config;
 
 import jakarta.annotation.PostConstruct;
-import org.example.backendclerkio.dto.ProductResponseDTO;
-import org.example.backendclerkio.dto.ProductsResponseDTO;
+import org.example.backendclerkio.dto.ProductRequestDTO;
 import org.example.backendclerkio.dto.UserRequestDTO;
 import org.example.backendclerkio.entity.Category;
 import org.example.backendclerkio.entity.Product;
@@ -16,8 +15,6 @@ import org.example.backendclerkio.service.ProductService;
 import org.example.backendclerkio.service.UserService;
 import org.springframework.context.annotation.Configuration;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,7 +55,7 @@ public class InitData {
 
         if (productRepository.count() == 0) {
             try {
-                ProductsResponseDTO response = productService.getAllProducts().block();
+                org.example.backendclerkio.dto.ProductsRequestDTO response = productService.getAllProducts().block();
 
                 if (response != null && response.products() != null) {
                     List<Product> products = response.products().stream()
@@ -77,31 +74,28 @@ public class InitData {
         }
     }
 
-    private Product mapToEntity(ProductResponseDTO dto) {
-        String categoryName = dto.category();
+    private Product mapToEntity(ProductRequestDTO productRequestDTO) {
+        String categoryName = productRequestDTO.category();
         Category category = categoryRepository.findByCategoryName(categoryName)
                 .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
 
         Set<Tag> tags = new HashSet<>();
-        for (String tagName : dto.tags()) {
+        for (String tagName : productRequestDTO.tags()) {
             Tag tag = tagRepository.findByTagName(tagName)
                     .orElseGet(() -> tagRepository.save(new Tag(tagName)));
 
             tags.add(tag);
         }
 
-        float price = BigDecimal.valueOf(dto.price() / 100.0 * (100 - dto.discountPercentage()))
-                .setScale(2, RoundingMode.HALF_UP)
-                .floatValue();
 
         Product product = new Product(
-                dto.title(),
-                dto.description(),
-                price,
-                dto.stock(),
+                productRequestDTO.title(),
+                productRequestDTO.description(),
+                productRequestDTO.price(),
+                productRequestDTO.price(),
+                productRequestDTO.stockCount(),
                 category,
-                dto.images(),
-                dto.discountPercentage(),
+                productRequestDTO.images(),
                 tags
         );
 
