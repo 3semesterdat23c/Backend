@@ -16,6 +16,8 @@ import org.example.backendclerkio.service.ProductService;
 import org.example.backendclerkio.service.UserService;
 import org.springframework.context.annotation.Configuration;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -88,10 +90,14 @@ public class InitData {
             tags.add(tag);
         }
 
+        float price = BigDecimal.valueOf(dto.price() / 100.0 * (100 - dto.discountPercentage()))
+                .setScale(2, RoundingMode.HALF_UP)
+                .floatValue();
+
         Product product = new Product(
                 dto.title(),
                 dto.description(),
-                dto.price(),
+                price,
                 dto.stock(),
                 category,
                 dto.images(),

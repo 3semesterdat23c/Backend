@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -115,16 +117,23 @@ public class ProductService {
             tags.add(tag);
         }
 
+
+
+
         // Create the product with the category and tags
+        float price = BigDecimal.valueOf(productRequestDTO.price() / 100.0 * (100 - productRequestDTO.discountPercentage()))
+                .setScale(2, RoundingMode.HALF_UP)
+                .floatValue();
+
         Product product = new Product(
                 productRequestDTO.title(),
                 productRequestDTO.description(),
-                productRequestDTO.price(),
+                price,
                 productRequestDTO.stock(),
-                category, // Associate the found/created category
+                category,
                 productRequestDTO.images(),
                 productRequestDTO.discountPercentage(),
-                tags // Include tags as a Set of Tag entities
+                tags
         );
 
         // Save the product to the repository
@@ -171,10 +180,14 @@ public class ProductService {
                     .orElseGet(() -> tagRepository.save(new Tag(tagName)));
             tags.add(tag);
         }
+        float price = BigDecimal.valueOf(productRequestDTO.price() / 100.0 * (100 - productRequestDTO.discountPercentage()))
+                .setScale(2, RoundingMode.HALF_UP)
+                .floatValue();
+
 
         // Set the properties for the product
         existingProduct.setName(productRequestDTO.title());
-        existingProduct.setPrice(productRequestDTO.price());
+        existingProduct.setPrice(price);
         existingProduct.setDescription(productRequestDTO.description());
         existingProduct.setStockCount(productRequestDTO.stock());
         existingProduct.setCategory(category);  // Single category set here
