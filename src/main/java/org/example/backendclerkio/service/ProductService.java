@@ -11,6 +11,7 @@ import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.repository.TagRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -191,7 +192,6 @@ public class ProductService {
     public Product getProductById(int id) {
         return productRepository.findById(id).orElse(null);
     }
-
 
     public Page<Product> findByCategory(String category, Pageable pageable) {
         return productRepository.findProductsByCategory_CategoryName(category, pageable);
