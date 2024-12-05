@@ -89,6 +89,28 @@ public class UserService {
             user.setFirstName(userRequestDTO.firstName());
             user.setLastName(userRequestDTO.lastName());
             user.setUserEmail(userRequestDTO.email());
+
+            User updatedUser = userRepository.save(user);
+
+            UserResponseDTO userResponseDTO = new UserResponseDTO(
+                    updatedUser.getUserId(),
+                    updatedUser.getFirstName(),
+                    updatedUser.getLastName(),
+                    updatedUser.getUserEmail(),
+                    updatedUser.isAdmin()
+            );
+
+            return Optional.of(userResponseDTO);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    public Optional<UserResponseDTO> updatePassword(int userId, UserRequestDTO userRequestDTO) {
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
             user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
 
             User updatedUser = userRepository.save(user);
@@ -104,6 +126,15 @@ public class UserService {
             return Optional.of(userResponseDTO);
         } else {
             return Optional.empty();
+        }
+    }
+
+    public void makeUserAdmin(String userMail) {
+        Optional<User> optionalUser = userRepository.findByUserEmail(userMail);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setAdmin(true);;
+            userRepository.save(user);
         }
     }
 
@@ -129,6 +160,11 @@ public class UserService {
     public boolean userExistsByUserId(int userId) {
         return userRepository.existsByUserId(userId);
     }
+    public User findByUsername(String username) throws Exception {
+        return userRepository.findByUserEmail(username)
+                .orElseThrow(() -> new Exception("User not found"));
+    }
+
 
 
 

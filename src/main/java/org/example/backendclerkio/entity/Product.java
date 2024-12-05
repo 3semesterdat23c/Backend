@@ -1,5 +1,6 @@
 package org.example.backendclerkio.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,16 +24,27 @@ public class Product {
     private int productId;
 
     @Column(name = "product_name", nullable = false)
-    private String name;
-
-    @Column(name = "product_price", nullable = false)
-    private float price;
+    private String title;
 
     @Column(name = "product_description")
     private String description;
 
+
+    @Column(name = "product_price", nullable = false)
+    private double price;
+
+    @Column(name = "product_discount_price", nullable = false)
+    private double discountPrice;
+
+
     @Column(name = "stock_count", nullable = false)
     private int stockCount;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id")
+    @JsonManagedReference
+    private Category category;
+
 
     // Change from single String to List<String>
     @ElementCollection
@@ -40,35 +52,27 @@ public class Product {
     @Column(name = "image_url")
     private List<String> images;
 
-    @Column(name = "discount")
-    private float discount;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany
     @JoinTable(
-            name = "category_product",
+            name = "product_tags",
             joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
-    @JsonManagedReference // Indicates this is the "parent" side of the relationship
-    private Set<Category> categories;
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    private Set<Tag> tags;
 
-    // Convenience constructor
-    public Product(String title, String description, float price, int stock, Set<Category> categories, List<String> images, float discount) {
-        this.name = title;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<OrderProduct> orderProducts;
+
+    // Constructor with tags and category
+    public Product(String title, String description, double price, double discountPrice, int stockCount, Category category, List<String> images, Set<Tag> tags) {
+        this.title = title;
         this.description = description;
         this.price = price;
-        this.stockCount = stock;
-        this.discount = discount;
-        this.categories = categories;
+        this.discountPrice = discountPrice;
+        this.stockCount = stockCount;
+        this.category = category;
         this.images = images;
-    }
-
-    public Product(String title, String description, float price, int stock, String category, List<String> images, float discount) {
-        this.name = title;
-        this.description = description;
-        this.price = price;
-        this.stockCount = stock;
-        this.images = images;
-        this.discount = discount;
+        this.tags = tags;
     }
 }

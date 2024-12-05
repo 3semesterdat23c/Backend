@@ -41,7 +41,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .authorizeHttpRequests()
                 // Permit these endpoints for everyone
                 .requestMatchers(
-                        "/api/v1/products",
+                        "/api/v1/products/**",
                         "/api/v1/products/{id}",
                         "/api/v1/products/create",
                         "/api/v1/products/{id}/delete",
@@ -50,9 +50,17 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         "/api/v1/users/{userId}",
                         "/api/v1/users/register",
                         "/api/v1/users/login",
+                        "/api/v1/users/{usermail}/setadmin",
+                        "/api/v1/users/{usermail}/user",
                         "/api/v1/users/{userId}/update",
+                        "/api/v1/users/{userId}/updatepassword",
                         "/api/v1/users/{userId}/delete",
-                        "/api/v1/users/logout")
+                        "/api/v1/users/logout",
+                        "/api/vi/order/cart",
+                        "/api/v1/order/delete",
+                        "/api/v1/products/{id}/update/stock"
+                        )
+
                 .permitAll()
                 // Allow DELETE and PUT for authenticated users (no roles required)
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/{id}/delete").permitAll()
@@ -81,7 +89,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         System.out.println("addCorsMappings called");
         registry.addMapping("/**")  // /** means match any string recursively
-                .allowedOriginPatterns("http://localhost:*") //Multiple strings allowed. Wildcard * matches all port numbers.
+                .allowedOriginPatterns("http://localhost:*","https://3semesterdat23c.github.io/FrontendClerk/*") //Multiple strings allowed. Wildcard * matches all port numbers.
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS") // decide which methods to allow
                 .allowCredentials(true);
     }

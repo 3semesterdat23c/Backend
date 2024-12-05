@@ -48,6 +48,18 @@ public class UserController {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    @GetMapping("/{userMail}/user")
+    public ResponseEntity<?> getUserByMail(@PathVariable String userMail) {
+        if (!userService.userExistsByEmail(userMail)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with mail: " + userMail + " not found.");
+        }
+
+        return userService.findByUserEmail(userMail)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
     @GetMapping("")
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<UserResponseDTO> users = userService.getAllUsers();
@@ -96,6 +108,34 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to update the user. Please try again.");
+        }
+    }
+
+    @PutMapping("/{userId}/updatepassword")
+    public ResponseEntity<?> updatePassword(@PathVariable int userId, @RequestBody UserRequestDTO userRequestDTO) {
+        if (!userService.userExistsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with user ID: " + userId + " not found.");
+        }
+
+        Optional<UserResponseDTO> updatedUser = userService.updatePassword(userId, userRequestDTO);
+        if (updatedUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK).body(updatedUser.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update the password. Please try again.");
+        }
+    }
+
+    @PutMapping("/{userMail}/setadmin")
+    public ResponseEntity<?> makeUserAdmin(@PathVariable String userMail){
+        if (!userService.userExistsByEmail(userMail)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("User with mail: " + userMail + " not found.");
+        }
+        else {
+            userService.makeUserAdmin(userMail);
+            return ResponseEntity.ok("User made admin");
         }
     }
 

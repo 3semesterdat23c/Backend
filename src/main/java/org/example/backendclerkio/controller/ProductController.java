@@ -22,10 +22,24 @@ public class ProductController {
     }
 
     @GetMapping("")
-    public Page<Product> findAll(Pageable pageable) {
-        Page<Product> products = productService.findAll(pageable);
-        return products;
+    public Page<Product> findAll(
+            Pageable pageable,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestParam(defaultValue = "false") boolean lowStock,
+            @RequestParam(defaultValue = "false") boolean outOfStock
+    ) {
+        if (category != null) {
+            return productService.findByCategory(category, pageable);
+        }
+        if (!search.isEmpty()) {
+            return productService.searchProductsByName(search, pageable);
+        } else if (lowStock || outOfStock) {
+            return productService.findFilteredProducts(pageable, lowStock, outOfStock);
+        }
+        return productService.findAll(pageable);
     }
+
 
 
     @PostMapping("/create")
@@ -50,6 +64,18 @@ public class ProductController {
     public ResponseEntity<?> updateProduct(@PathVariable int id, @RequestBody ProductRequestDTO updatedProduct) {
         try {
             Product updated = productService.updateProduct(id, updatedProduct);
+            return ResponseEntity.ok(updated);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the booking.");
+        }
+    }
+
+    @PutMapping("/{id}/update/stock")
+    public ResponseEntity<?> updateStock(@PathVariable int id, @RequestBody int stock) {
+        try {
+            Product updated = productService.updateStock(id, stock);
             return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
