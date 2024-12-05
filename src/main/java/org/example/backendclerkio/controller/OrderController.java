@@ -7,6 +7,7 @@ import org.example.backendclerkio.dto.UserResponseDTO;
 import org.example.backendclerkio.entity.Order;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.entity.User;
+import org.example.backendclerkio.service.EmailService;
 import org.example.backendclerkio.service.OrderService;
 import org.example.backendclerkio.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -23,10 +24,12 @@ public class OrderController {
 
     private final OrderService orderService;
     private final UserService userService;
+    private final EmailService emailService;
 
-    public OrderController(OrderService orderService, UserService userService) {
+    public OrderController(OrderService orderService, UserService userService, EmailService emailService) {
         this.orderService = orderService;
         this.userService = userService;
+        this.emailService = emailService;
     }
 
     private UserResponseDTO getCurrentUserDTO(Principal principal) throws Exception {
@@ -74,6 +77,22 @@ public class OrderController {
             return ResponseEntity.ok("Product removed from cart successfully");
         } catch (Exception e) {
             return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/test-email")
+    public ResponseEntity<String> testEmail() {
+        try {
+            String testEmail = "guso0001@stud.kea.dk"; // Replace with your test email
+            emailService.sendConfirmationEmail(
+                    testEmail,
+                    "Hej flotte gustav",
+                    "<h1>This is a test email</h1><p>If you're seeing this, the email service works!</p>"
+            );
+
+            return ResponseEntity.ok("Test email sent successfully to " + testEmail);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send test email: " + e.getMessage());
         }
     }
 
