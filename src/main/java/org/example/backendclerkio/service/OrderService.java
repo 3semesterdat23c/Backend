@@ -62,6 +62,10 @@ public class OrderService {
         Product product = productRepository.findById(cartItemDTO.productId())
                 .orElseThrow(() -> new Exception("Product not found"));
 
+        if (product.getStockCount() <= 0) {
+            throw new Exception("Product is out of stock");
+        }
+
         // Get or create the cart (Order entity)
         Order cart = getCartForUser(user);
 
@@ -70,11 +74,27 @@ public class OrderService {
                 .filter(op -> op.getProduct().getProductId() == cartItemDTO.productId())
                 .findFirst();
 
+        int requestedQuantity = cartItemDTO.quantity();
+        int availableStock = product.getStockCount();
+
+
         if (optionalOrderProduct.isPresent()) {
             // Update the quantity
             OrderProduct orderProduct = optionalOrderProduct.get();
-            orderProduct.setQuantity(orderProduct.getQuantity() + cartItemDTO.quantity());
+            int currentQuantityInCart = orderProduct.getQuantity();
+            int newTotalQuantity = currentQuantityInCart + requestedQuantity;
+
+            if (newTotalQuantity > availableStock) {
+                throw new Exception("Requested quantity exceeds available stock");
+            }
+
+            orderProduct.setQuantity(newTotalQuantity);
         } else {
+            // Check if requested quantity exceeds available stock
+            if (requestedQuantity > availableStock) {
+                throw new Exception("Requested quantity exceeds available stock");
+            }
+
             // Create a new OrderProduct
             OrderProduct orderProduct = new OrderProduct();
             orderProduct.setOrder(cart);
@@ -93,6 +113,8 @@ public class OrderService {
     public List<CartItemResponseDTO> getAllProductsInCart(UserResponseDTO userDTO) throws Exception {
         User user = userRepository.findById(userDTO.userId())
                 .orElseThrow(() -> new Exception("User not found"));
+
+
 
         Order cart = getCartForUser(user);
 
