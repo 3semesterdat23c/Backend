@@ -165,6 +165,9 @@ public class UserService {
                 .orElseThrow(() -> new Exception("User not found"));
     }
 
+    public Optional<User> findUserById(int userId){
+        return userRepository.findUserByUserId(userId);
+    }
 
 
 
