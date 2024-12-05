@@ -14,6 +14,8 @@ import org.example.backendclerkio.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -141,8 +143,11 @@ public class OrderService {
     }
 
 
-
-
+    public void checkout(Order order) {
+        order.setPaid(true); // Confirm the order
+        order.setOrderDate(LocalDateTime.now().toInstant(ZoneOffset.ofHours(1)).toEpochMilli());
+        orderRepository.save(order);
+    }
 }
 
 

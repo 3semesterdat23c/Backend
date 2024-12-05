@@ -59,7 +59,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         "/api/vi/order/cart",
                         "/api/v1/order/delete",
                         "/api/v1/products/{id}/update/stock",
-                        "/api/v1/order/test-email"
+                        "/api/v1/order/test-email",
+                        "/api/v1/order/checkout"
                         )
 
                 .permitAll()

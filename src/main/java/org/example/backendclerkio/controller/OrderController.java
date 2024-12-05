@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequestMapping("api/v1/order")
@@ -80,6 +81,33 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/checkout")
+    public ResponseEntity<?> checkoutOrder(@RequestBody Order order) {
+        try {
+            // Step 1: Validate the Order
+            if (order == null || order.getUser() == null || order.getOrderProducts().isEmpty()) {
+                return ResponseEntity.badRequest().body("Invalid order details");
+            }
+
+            orderService.checkout(order);
+
+            emailService.sendConfirmationEmail(
+                    order.getUser().getUserEmail(),
+                    "Order Confirmation for order: " + order.getId(),
+                    buildEmailBody(order)
+            );
+
+            // Step 4: Return a Response
+            return ResponseEntity.ok("Order successfully checked out!");
+
+        } catch (Exception e) {
+            // Log the error for debugging
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while checking out the order: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/test-email")
     public ResponseEntity<String> testEmail() {
         try {
@@ -94,6 +122,10 @@ public class OrderController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send test email: " + e.getMessage());
         }
+    }
+
+    private String buildEmailBody(Order order) {
+        return "Test";
     }
 
 
