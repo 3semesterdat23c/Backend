@@ -148,6 +148,10 @@ public class OrderService {
         order.setOrderDate(LocalDateTime.now().toInstant(ZoneOffset.ofHours(1)).toEpochMilli());
         orderRepository.save(order);
     }
+
+    public Optional<Order> findOrderById(int orderId){
+        return orderRepository.findOrderById(orderId);
+    }
 }
 
 

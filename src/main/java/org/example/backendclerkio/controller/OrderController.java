@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("api/v1/order")
 @RestController
@@ -81,8 +82,13 @@ public class OrderController {
         }
     }
 
-    @PostMapping("/checkout")
-    public ResponseEntity<?> checkoutOrder(@RequestBody Order order) {
+    @PostMapping("/checkout/{orderId}")
+    public ResponseEntity<?> checkoutOrder(@PathVariable int  orderId) {
+        Optional optionalOrder = orderService.findOrderById(orderId);
+        if (optionalOrder.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Order not found."));
+        }
+        Order order = (Order) optionalOrder.get();
         try {
             // Step 1: Validate the Order
             if (order == null || order.getUser() == null || order.getOrderProducts().isEmpty()) {
