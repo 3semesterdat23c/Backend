@@ -1,3 +1,4 @@
+
 package org.example.backendclerkio.config;
 
 import jakarta.annotation.PostConstruct;
@@ -102,3 +103,4 @@ public class InitData {
         return product;
     }
 }
+
