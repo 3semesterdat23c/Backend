@@ -14,6 +14,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query("SELECT o FROM Order o LEFT JOIN FETCH o.orderProducts WHERE o.user = :user AND o.paid = :paid")
     Optional<Order> findByUserAndPaidWithProducts(@Param("user") User user, @Param("paid") boolean paid);
     Optional<Order> findByUserAndPaidFalse(User user);
-
+    Optional<Order> findOrderById(int orderId);
     // Other methods...
 }

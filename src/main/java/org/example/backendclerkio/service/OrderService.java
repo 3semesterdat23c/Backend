@@ -14,6 +14,8 @@ import org.example.backendclerkio.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -141,8 +143,30 @@ public class OrderService {
     }
 
 
+    public void checkout(Order order) {
+        order.setPaid(true); // Mark the order as paid
+        order.setOrderDate(LocalDateTime.now().toInstant(ZoneOffset.ofHours(1)).toEpochMilli());
+
+        for (OrderProduct orderProduct : order.getOrderProducts()) {
+            // Reduce the stock count by the quantity ordered
+            Product product = orderProduct.getProduct();
+            int newStockCount = product.getStockCount() - orderProduct.getQuantity();
+
+            // Ensure stock count doesn't go negative
+            if (newStockCount < 0) {
+                throw new IllegalArgumentException("Insufficient stock for product: " + product.getTitle());
+            }
+
+            product.setStockCount(newStockCount);
+        }
+
+        orderRepository.save(order);
+    }
 
 
+    public Optional<Order> findOrderById(int orderId){
+        return orderRepository.findOrderById(orderId);
+    }
 }
 
 
