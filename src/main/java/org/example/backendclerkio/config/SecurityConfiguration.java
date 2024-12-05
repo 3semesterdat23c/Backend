@@ -58,7 +58,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         "/api/v1/users/logout",
                         "/api/vi/order/cart",
                         "/api/v1/order/delete",
-                        "/api/v1/products/{id}/update/stock",
+                        "/api/v1/products/{id}/update/stock"
                         )
 
                 .permitAll()
@@ -89,7 +89,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         System.out.println("addCorsMappings called");
         registry.addMapping("/**")  // /** means match any string recursively
-                .allowedOriginPatterns("http://localhost:*") //Multiple strings allowed. Wildcard * matches all port numbers.
+                .allowedOriginPatterns("http://localhost:*","https://3semesterdat23c.github.io/FrontendClerk/*") //Multiple strings allowed. Wildcard * matches all port numbers.
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS") // decide which methods to allow
                 .allowCredentials(true);
     }
