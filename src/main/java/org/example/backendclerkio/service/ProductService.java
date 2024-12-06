@@ -150,7 +150,7 @@ public class ProductService {
         if (productToUpdate == null) {
             throw new IllegalArgumentException("Booking not found");
         }
-
+        //Something to edit here
         productToUpdate.setStockCount(newStockCount);
 
         return productRepository.save(productToUpdate);

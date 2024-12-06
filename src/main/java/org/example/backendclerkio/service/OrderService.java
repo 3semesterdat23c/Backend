@@ -66,6 +66,12 @@ public class OrderService {
             throw new Exception("Product is out of stock");
         }
 
+        // Determine the price at time of order
+        double priceAtTimeOfOrder = product.getPrice();
+        if (product.getDiscountPrice() != null && product.getDiscountPrice() < product.getPrice()) {
+            priceAtTimeOfOrder = product.getDiscountPrice();
+        }
+
         // Get or create the cart (Order entity)
         Order cart = getCartForUser(user);
 
@@ -76,7 +82,6 @@ public class OrderService {
 
         int requestedQuantity = cartItemDTO.quantity();
         int availableStock = product.getStockCount();
-
 
         if (optionalOrderProduct.isPresent()) {
             // Update the quantity
@@ -89,6 +94,11 @@ public class OrderService {
             }
 
             orderProduct.setQuantity(newTotalQuantity);
+
+            // Update priceAtTimeOfOrder if there's a new discount
+            if (priceAtTimeOfOrder < orderProduct.getPriceAtTimeOfOrder()) {
+                orderProduct.setPriceAtTimeOfOrder(priceAtTimeOfOrder);
+            }
         } else {
             // Check if requested quantity exceeds available stock
             if (requestedQuantity > availableStock) {
@@ -100,7 +110,7 @@ public class OrderService {
             orderProduct.setOrder(cart);
             orderProduct.setProduct(product);
             orderProduct.setQuantity(cartItemDTO.quantity());
-            orderProduct.setPriceAtTimeOfOrder(product.getPrice());
+            orderProduct.setPriceAtTimeOfOrder(priceAtTimeOfOrder); // Set based on discount
 
             // Add to the cart
             cart.getOrderProducts().add(orderProduct);
@@ -109,12 +119,9 @@ public class OrderService {
         // Save the cart (cascades to OrderProduct)
         orderRepository.save(cart);
     }
-
     public List<CartItemResponseDTO> getAllProductsInCart(UserResponseDTO userDTO) throws Exception {
         User user = userRepository.findById(userDTO.userId())
                 .orElseThrow(() -> new Exception("User not found"));
-
-
 
         Order cart = getCartForUser(user);
 
@@ -125,11 +132,13 @@ public class OrderService {
                     String imageUrl = product.getImages() != null && !product.getImages().isEmpty()
                             ? product.getImages().get(0)
                             : null;
+                    double originalPrice = product.getPrice();
                     return new CartItemResponseDTO(
                             product.getProductId(),
                             product.getTitle(),
                             orderProduct.getQuantity(),
                             orderProduct.getPriceAtTimeOfOrder(),
+                            originalPrice,                // Populate originalPrice
                             imageUrl
                     );
                 })
@@ -137,7 +146,6 @@ public class OrderService {
 
         return cartItemsDTO;
     }
-
     public void removeItemFromCart(UserResponseDTO userDTO, CartItemResponseDTO cartItemResponseDTO) throws Exception {
         // Fetch the user entity from the DTO
         User user = userRepository.findById(userDTO.userId())
