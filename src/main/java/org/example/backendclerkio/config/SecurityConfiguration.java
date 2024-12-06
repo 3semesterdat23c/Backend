@@ -42,6 +42,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 // Permit these endpoints for everyone
                 .requestMatchers(
                         "/api/v1/products/**",
+                        "/api/v1/products/list",
+                        "/api/v1/products/categories/{categoryID}",
                         "/api/v1/products/{id}",
                         "/api/v1/products/create",
                         "/api/v1/products/{id}/delete",

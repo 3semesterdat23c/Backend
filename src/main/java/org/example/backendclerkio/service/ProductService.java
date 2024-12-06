@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ProductService {
@@ -34,6 +31,10 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
         this.tagRepository = tagRepository;
         this.webClient = webClient.build();
+    }
+
+    public List<Product> getProductList(){
+        return productRepository.findAll();
     }
 
 
@@ -81,6 +82,15 @@ public class ProductService {
     public Page<Product> findAll(Pageable pageable){
         return productRepository.findAll(pageable);
     }
+
+    public Page<Product> findAllByCategory(Pageable pageable, int categoryID){
+        Optional<Category> categoryOptional = categoryRepository.findByCategoryId(categoryID);
+        Category category = new Category();
+        if (categoryOptional.isPresent()){
+        return productRepository.findAllByCategory(pageable, categoryOptional.get());}
+     return null;}
+
+
 
     public Page<Product> findFilteredProducts(Pageable pageable, boolean lowStock, boolean outOfStock) {
         if (lowStock && outOfStock) {
