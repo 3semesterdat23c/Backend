@@ -2,6 +2,7 @@ package org.example.backendclerkio.service;
 
 import org.example.backendclerkio.dto.CartItemRequestDTO;
 import org.example.backendclerkio.dto.CartItemResponseDTO;
+import org.example.backendclerkio.dto.PaymentRequestDTO;
 import org.example.backendclerkio.dto.UserResponseDTO;
 import org.example.backendclerkio.entity.Order;
 import org.example.backendclerkio.entity.OrderProduct;
@@ -189,7 +190,21 @@ public class OrderService {
     public Optional<Order> findOrderById(int orderId){
         return orderRepository.findOrderById(orderId);
     }
+
+
+
+    public boolean paymentIsValid(PaymentRequestDTO paymentRequestDTO){
+        return (paymentRequestDTO.cardNumber() == 1111111111111111L && paymentRequestDTO.expiryDate() == 1111 && paymentRequestDTO.cvv() == 111);
+    }
+
+    public Optional<Order> findOrderByUserIdAndPaidFalse(int id) {
+        return orderRepository.findOrderByUserIdAndPaidFalse(id);
+    }
+
 }
+
+
+
 
 
 
