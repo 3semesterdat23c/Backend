@@ -49,22 +49,25 @@ public class ProductController {
     }
 
     @GetMapping("/categories/{categoryID}")
-    public Page<Product> findByCategory(Pageable pageable, @PathVariable int categoryID,
-        @RequestParam(required = false) String category,
-        @RequestParam(required = false, defaultValue = "") String search,
-        @RequestParam(defaultValue = "false") boolean lowStock,
-        @RequestParam(defaultValue = "false") boolean outOfStock
+    public Page<Product> findByCategory(
+            Pageable pageable,
+            @PathVariable int categoryID,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestParam(defaultValue = "false") boolean lowStock,
+            @RequestParam(defaultValue = "false") boolean outOfStock
     ) {
-            if (category != null) {
-                return productService.findByCategory(category, pageable);
-            }
-            if (!search.isEmpty()) {
-                return productService.searchProductsByName(search, pageable);
-            } else if (lowStock || outOfStock) {
-                return productService.findFilteredProducts(pageable, lowStock, outOfStock);
-            }
-            return productService.findAllByCategory(pageable, categoryID);
+        if (category != null) {
+            return productService.findByCategory(category, pageable);
         }
+        if (!search.isEmpty()) {
+            return productService.searchProductsByName(search, pageable);
+        } else if (lowStock || outOfStock) {
+            return productService.findFilteredProducts(pageable, lowStock, outOfStock);
+        }
+        return productService.findAllByCategory(pageable, categoryID);
+    }
+
 
 
     @PostMapping("/create")
