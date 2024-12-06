@@ -145,13 +145,20 @@ public class ProductService {
 
     }
 
-    public Product updateStock(int id, int newStockCount){
-        Product productToUpdate = productRepository.findById(id).orElse(null);
-        if (productToUpdate == null) {
-            throw new IllegalArgumentException("Booking not found");
+    public Product updateStock(int id, int quantityToAdd) {
+        Product productToUpdate = productRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + id));
+
+        if (quantityToAdd < 0) {
+            throw new IllegalArgumentException("Quantity to add must be non-negative");
         }
-        //Something to edit here
-        productToUpdate.setStockCount(newStockCount);
+
+        int currentStock = productToUpdate.getStockCount();
+
+        int updatedStock = currentStock + quantityToAdd;
+
+
+        productToUpdate.setStockCount(updatedStock);
 
         return productRepository.save(productToUpdate);
     }
