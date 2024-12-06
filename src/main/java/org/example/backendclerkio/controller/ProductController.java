@@ -3,6 +3,7 @@ package org.example.backendclerkio.controller;
 
 import org.example.backendclerkio.dto.ProductRequestDTO;
 import org.example.backendclerkio.entity.Product;
+import org.example.backendclerkio.service.CategoryService;
 import org.example.backendclerkio.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -96,6 +97,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
 }
 
 
