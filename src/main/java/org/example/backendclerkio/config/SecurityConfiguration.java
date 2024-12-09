@@ -64,7 +64,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         "/api/v1/order/test-email",
                         "/api/v1/order/checkout",
                         "/api/v1/order/validatePayment",
-                        "/api/v1/order/active"
+                        "/api/v1/order/active",
                         "/api/v1/order/checkout",
                         "/api/v1/order/test-email",
                         "api/v1/category/categories"
