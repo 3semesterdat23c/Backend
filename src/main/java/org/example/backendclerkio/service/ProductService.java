@@ -10,6 +10,7 @@ import org.example.backendclerkio.repository.CategoryRepository;
 import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.repository.TagRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -216,6 +217,37 @@ public class ProductService {
     public Page<Product> searchProductsByName(String title, Pageable pageable) {
         return productRepository.findByTitleContainingIgnoreCase(title, pageable);
     }
+    public Page<Product> getFilteredProducts(
+            Pageable pageable,
+            String category,
+            String search,
+            boolean lowStock,
+            boolean outOfStock,
+            String sort
+    ) {
+        // Apply sorting logic if needed
+        Sort sortObj = Sort.unsorted();
+        if (sort != null && !sort.isEmpty()) {
+            String[] sortParams = sort.split(",");
+            if (sortParams.length == 2) {
+                sortObj = Sort.by(Sort.Direction.fromString(sortParams[1]), sortParams[0]);
+            }
+        }
+
+        Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sortObj);
+
+        if (category != null) {
+            return productRepository.findByCategory(category, sortedPageable);
+        }
+        if (!search.isEmpty()) {
+            return productRepository.findByTitleContainingIgnoreCase(search, sortedPageable);
+        }
+        if (lowStock || outOfStock) {
+            return productRepository.findFiltered(lowStock, outOfStock, sortedPageable);
+        }
+        return productRepository.findAll(sortedPageable);
+    }
+
 }
 
 

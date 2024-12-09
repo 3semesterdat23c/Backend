@@ -30,17 +30,11 @@ public class ProductController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(defaultValue = "false") boolean lowStock,
-            @RequestParam(defaultValue = "false") boolean outOfStock
+            @RequestParam(defaultValue = "false") boolean outOfStock,
+            @RequestParam(required = false) String sort // e.g., "price,asc" or "price,desc"
     ) {
-        if (category != null) {
-            return productService.findByCategory(category, pageable);
-        }
-        if (!search.isEmpty()) {
-            return productService.searchProductsByName(search, pageable);
-        } else if (lowStock || outOfStock) {
-            return productService.findFilteredProducts(pageable, lowStock, outOfStock);
-        }
-        return productService.findAll(pageable);
+        // Pass all filters to the service layer
+        return productService.getFilteredProducts(pageable, category, search, lowStock, outOfStock, sort);
     }
 
     @GetMapping("/list")
