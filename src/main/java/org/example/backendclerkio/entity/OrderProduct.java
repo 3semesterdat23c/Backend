@@ -1,6 +1,7 @@
 
 package org.example.backendclerkio.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class OrderProduct {
 
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Order order;
 
     @ManyToOne
