@@ -17,5 +17,7 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     @Query("SELECT o FROM Order o WHERE o.user.userId = :userId AND o.paid = false")
     Optional<Order> findOrderByUserIdAndPaidFalse(int userId);
-    // Other methods...
+
+    @Query("SELECT o FROM Order o WHERE o.user.userId = :userId AND o.paid = true")
+    Optional<List<Order>> findOrdersByUserIdAndPaidTrue(int userId);
 }
