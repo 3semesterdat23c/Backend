@@ -209,6 +209,9 @@ public class OrderService {
         return orderRepository.findOrderByUserIdAndPaidFalse(id);
     }
 
+    public List<Order> findOrdersByUserIdAndPaidTrue(int userId) {
+        return orderRepository.findOrdersByUserIdAndPaidTrue(userId).get();
+    }
 }
 
 
