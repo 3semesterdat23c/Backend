@@ -46,6 +46,17 @@ public class OrderController {
         );
     }
 
+    @GetMapping("/myOrders")
+    public ResponseEntity<?> getAllOrdersForUser(Principal principal) {
+        try {
+            UserResponseDTO userResponseDTO = getCurrentUserDTO(principal);
+            List<Order> allOrders = orderService.findOrdersByUserIdAndPaidTrue(userResponseDTO.userId());
+            return ResponseEntity.ok(allOrders);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Error: " + e.getMessage()));
+        }
+    }
+
 
     @PostMapping("/cart")
     public ResponseEntity<ApiResponse> addToCart(@RequestBody CartItemRequestDTO cartItemRequestDTO, Principal principal) {
@@ -69,20 +80,20 @@ public class OrderController {
         }
     }
 
-            @DeleteMapping("/delete")
-            public ResponseEntity<?> deleteProductFromCart(Principal principal, @RequestBody CartItemResponseDTO cartItemResponseDTO) {
-                try {
-                    // Delegate the user retrieval to the service
-                    UserResponseDTO userDTO = getCurrentUserDTO(principal);
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteProductFromCart(Principal principal, @RequestBody CartItemResponseDTO cartItemResponseDTO) {
+        try {
+            // Delegate the user retrieval to the service
+            UserResponseDTO userDTO = getCurrentUserDTO(principal);
 
-                    // Call the service to remove the product from the cart
-                    orderService.removeItemFromCart(userDTO, cartItemResponseDTO);
+            // Call the service to remove the product from the cart
+            orderService.removeItemFromCart(userDTO, cartItemResponseDTO);
 
-                    return ResponseEntity.ok("Product removed from cart successfully");
-                } catch (Exception e) {
-                    return ResponseEntity.status(400).body(e.getMessage());
-                }
-            }
+            return ResponseEntity.ok("Product removed from cart successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
 
     @PostMapping("/checkout/{orderId}")
     public ResponseEntity<?> checkoutOrder(@PathVariable int orderId) {
