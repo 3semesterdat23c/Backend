@@ -33,8 +33,8 @@ public class Product {
     @Column(name = "product_price", nullable = false)
     private double price;
 
-    @Column(name = "product_discount_price", nullable = false)
-    private double discountPrice;
+    @Column(name = "product_discount_price", nullable = true)
+    private Double discountPrice;
 
 
     @Column(name = "stock_count", nullable = false)

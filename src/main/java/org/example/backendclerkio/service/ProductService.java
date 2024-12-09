@@ -11,14 +11,12 @@ import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.repository.TagRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ProductService {
@@ -33,6 +31,10 @@ public class ProductService {
         this.categoryRepository = categoryRepository;
         this.tagRepository = tagRepository;
         this.webClient = webClient.build();
+    }
+
+    public List<Product> getProductList(){
+        return productRepository.findAll();
     }
 
 
@@ -80,6 +82,15 @@ public class ProductService {
     public Page<Product> findAll(Pageable pageable){
         return productRepository.findAll(pageable);
     }
+
+    public Page<Product> findAllByCategory(Pageable pageable, int categoryID){
+        Optional<Category> categoryOptional = categoryRepository.findByCategoryId(categoryID);
+        Category category = new Category();
+        if (categoryOptional.isPresent()){
+        return productRepository.findAllByCategory(pageable, categoryOptional.get());}
+     return null;}
+
+
 
     public Page<Product> findFilteredProducts(Pageable pageable, boolean lowStock, boolean outOfStock) {
         if (lowStock && outOfStock) {
@@ -149,7 +160,7 @@ public class ProductService {
         if (productToUpdate == null) {
             throw new IllegalArgumentException("Booking not found");
         }
-
+        //Something to edit here
         productToUpdate.setStockCount(newStockCount);
 
         return productRepository.save(productToUpdate);
@@ -191,7 +202,6 @@ public class ProductService {
     public Product getProductById(int id) {
         return productRepository.findById(id).orElse(null);
     }
-
 
     public Page<Product> findByCategory(String category, Pageable pageable) {
         return productRepository.findProductsByCategory_CategoryName(category, pageable);
