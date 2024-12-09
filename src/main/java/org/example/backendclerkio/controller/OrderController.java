@@ -1,9 +1,6 @@
 package org.example.backendclerkio.controller;
 
-import org.example.backendclerkio.dto.ApiResponse;
-import org.example.backendclerkio.dto.CartItemRequestDTO;
-import org.example.backendclerkio.dto.CartItemResponseDTO;
-import org.example.backendclerkio.dto.UserResponseDTO;
+import org.example.backendclerkio.dto.*;
 import org.example.backendclerkio.entity.Order;
 import org.example.backendclerkio.entity.OrderProduct;
 import org.example.backendclerkio.entity.Product;
@@ -72,20 +69,20 @@ public class OrderController {
         }
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteProductFromCart(Principal principal, @RequestBody CartItemResponseDTO cartItemResponseDTO) {
-        try {
-            // Delegate the user retrieval to the service
-            UserResponseDTO userDTO = getCurrentUserDTO(principal);
+            @DeleteMapping("/delete")
+            public ResponseEntity<?> deleteProductFromCart(Principal principal, @RequestBody CartItemResponseDTO cartItemResponseDTO) {
+                try {
+                    // Delegate the user retrieval to the service
+                    UserResponseDTO userDTO = getCurrentUserDTO(principal);
 
-            // Call the service to remove the product from the cart
-            orderService.removeItemFromCart(userDTO, cartItemResponseDTO);
+                    // Call the service to remove the product from the cart
+                    orderService.removeItemFromCart(userDTO, cartItemResponseDTO);
 
-            return ResponseEntity.ok("Product removed from cart successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
-    }
+                    return ResponseEntity.ok("Product removed from cart successfully");
+                } catch (Exception e) {
+                    return ResponseEntity.status(400).body(e.getMessage());
+                }
+            }
 
     @PostMapping("/checkout/{orderId}")
     public ResponseEntity<?> checkoutOrder(@PathVariable int orderId) {
@@ -135,6 +132,19 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/validatePayment")
+    public ResponseEntity<?> validatePayment(@RequestBody PaymentRequestDTO paymentRequestDTO) {
+        if (orderService.paymentIsValid(paymentRequestDTO)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Payment failed");
+        }
+    }
+
+
+
+
+
     private String buildEmailBody(Order order) {
         Optional<User> optionalUser = userService.findUserById(order.getUser().getUserId());
         if (optionalUser.isEmpty()) {
@@ -145,6 +155,7 @@ public class OrderController {
                 Instant.ofEpochMilli(order.getOrderDate()), // Convert milliseconds to Instant
                 ZoneOffset.ofHours(1)                      // Specify GMT+1
         );
+
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -190,4 +201,26 @@ public class OrderController {
 
         return stringBuilder.toString();
     }
+
+    @GetMapping("/active")
+    public ResponseEntity<?> getActiveOrder(Principal principal) {
+        try {
+            // Get the current user using Principal
+            UserResponseDTO userDTO = getCurrentUserDTO(principal);
+
+            // Find the active order for the user
+            Optional<Order> optionalOrder = orderService.findOrderByUserIdAndPaidFalse(userDTO.userId());
+
+            if (optionalOrder.isPresent()) {
+                return ResponseEntity.ok(optionalOrder.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No active order forund for the user");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
 }
+
+
