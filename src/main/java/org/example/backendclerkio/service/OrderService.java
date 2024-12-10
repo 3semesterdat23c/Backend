@@ -2,6 +2,7 @@ package org.example.backendclerkio.service;
 
 import org.example.backendclerkio.dto.CartItemRequestDTO;
 import org.example.backendclerkio.dto.CartItemResponseDTO;
+import org.example.backendclerkio.dto.PaymentRequestDTO;
 import org.example.backendclerkio.dto.UserResponseDTO;
 import org.example.backendclerkio.entity.Order;
 import org.example.backendclerkio.entity.OrderProduct;
@@ -14,6 +15,8 @@ import org.example.backendclerkio.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,6 +63,16 @@ public class OrderService {
         Product product = productRepository.findById(cartItemDTO.productId())
                 .orElseThrow(() -> new Exception("Product not found"));
 
+        if (product.getStockCount() <= 0) {
+            throw new Exception("Product is out of stock");
+        }
+
+        // Determine the price at time of order
+        double priceAtTimeOfOrder = product.getPrice();
+        if (product.getDiscountPrice() != null && product.getDiscountPrice() < product.getPrice()) {
+            priceAtTimeOfOrder = product.getDiscountPrice();
+        }
+
         // Get or create the cart (Order entity)
         Order cart = getCartForUser(user);
 
@@ -68,17 +81,37 @@ public class OrderService {
                 .filter(op -> op.getProduct().getProductId() == cartItemDTO.productId())
                 .findFirst();
 
+        int requestedQuantity = cartItemDTO.quantity();
+        int availableStock = product.getStockCount();
+
         if (optionalOrderProduct.isPresent()) {
             // Update the quantity
             OrderProduct orderProduct = optionalOrderProduct.get();
-            orderProduct.setQuantity(orderProduct.getQuantity() + cartItemDTO.quantity());
+            int currentQuantityInCart = orderProduct.getQuantity();
+            int newTotalQuantity = currentQuantityInCart + requestedQuantity;
+
+            if (newTotalQuantity > availableStock) {
+                throw new Exception("Requested quantity exceeds available stock");
+            }
+
+            orderProduct.setQuantity(newTotalQuantity);
+
+            // Update priceAtTimeOfOrder if there's a new discount
+            if (priceAtTimeOfOrder < orderProduct.getPriceAtTimeOfOrder()) {
+                orderProduct.setPriceAtTimeOfOrder(priceAtTimeOfOrder);
+            }
         } else {
+            // Check if requested quantity exceeds available stock
+            if (requestedQuantity > availableStock) {
+                throw new Exception("Requested quantity exceeds available stock");
+            }
+
             // Create a new OrderProduct
             OrderProduct orderProduct = new OrderProduct();
             orderProduct.setOrder(cart);
             orderProduct.setProduct(product);
             orderProduct.setQuantity(cartItemDTO.quantity());
-            orderProduct.setPriceAtTimeOfOrder(product.getPrice());
+            orderProduct.setPriceAtTimeOfOrder(priceAtTimeOfOrder); // Set based on discount
 
             // Add to the cart
             cart.getOrderProducts().add(orderProduct);
@@ -87,7 +120,6 @@ public class OrderService {
         // Save the cart (cascades to OrderProduct)
         orderRepository.save(cart);
     }
-
     public List<CartItemResponseDTO> getAllProductsInCart(UserResponseDTO userDTO) throws Exception {
         User user = userRepository.findById(userDTO.userId())
                 .orElseThrow(() -> new Exception("User not found"));
@@ -101,11 +133,13 @@ public class OrderService {
                     String imageUrl = product.getImages() != null && !product.getImages().isEmpty()
                             ? product.getImages().get(0)
                             : null;
+                    double originalPrice = product.getPrice();
                     return new CartItemResponseDTO(
                             product.getProductId(),
                             product.getTitle(),
                             orderProduct.getQuantity(),
                             orderProduct.getPriceAtTimeOfOrder(),
+                            originalPrice,                // Populate originalPrice
                             imageUrl
                     );
                 })
@@ -113,7 +147,6 @@ public class OrderService {
 
         return cartItemsDTO;
     }
-
     public void removeItemFromCart(UserResponseDTO userDTO, CartItemResponseDTO cartItemResponseDTO) throws Exception {
         // Fetch the user entity from the DTO
         User user = userRepository.findById(userDTO.userId())
@@ -141,9 +174,48 @@ public class OrderService {
     }
 
 
+    public void checkout(Order order) {
+        order.setPaid(true); // Mark the order as paid
+        order.setOrderDate(LocalDateTime.now().toInstant(ZoneOffset.ofHours(1)).toEpochMilli());
+
+        for (OrderProduct orderProduct : order.getOrderProducts()) {
+            // Reduce the stock count by the quantity ordered
+            Product product = orderProduct.getProduct();
+            int newStockCount = product.getStockCount() - orderProduct.getQuantity();
+
+            // Ensure stock count doesn't go negative
+            if (newStockCount < 0) {
+                throw new IllegalArgumentException("Insufficient stock for product: " + product.getTitle());
+            }
+
+            product.setStockCount(newStockCount);
+        }
+
+        orderRepository.save(order);
+    }
 
 
+    public Optional<Order> findOrderById(int orderId){
+        return orderRepository.findOrderById(orderId);
+    }
+
+
+
+    public boolean paymentIsValid(PaymentRequestDTO paymentRequestDTO){
+        return (paymentRequestDTO.cardNumber() == 1111111111111111L && paymentRequestDTO.expiryDate() == 1111 && paymentRequestDTO.cvv() == 111);
+    }
+
+    public Optional<Order> findOrderByUserIdAndPaidFalse(int id) {
+        return orderRepository.findOrderByUserIdAndPaidFalse(id);
+    }
+
+    public List<Order> findOrdersByUserIdAndPaidTrue(int userId) {
+        return orderRepository.findOrdersByUserIdAndPaidTrue(userId).get();
+    }
 }
+
+
+
 
 
 

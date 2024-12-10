@@ -73,6 +73,9 @@ public class InitData {
         } else {
             System.out.println("Database already populated with products.");
         }
+
+
+
     }
 
     private Product mapToEntity(ProductRequestDTO productRequestDTO) {

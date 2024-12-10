@@ -3,12 +3,15 @@ package org.example.backendclerkio.controller;
 
 import org.example.backendclerkio.dto.ProductRequestDTO;
 import org.example.backendclerkio.entity.Product;
+import org.example.backendclerkio.service.CategoryService;
 import org.example.backendclerkio.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequestMapping("api/v1/products")
 @RestController
@@ -38,6 +41,31 @@ public class ProductController {
             return productService.findFilteredProducts(pageable, lowStock, outOfStock);
         }
         return productService.findAll(pageable);
+    }
+
+    @GetMapping("/list")
+    public List<Product> getProductList(){
+        return productService.getProductList();
+    }
+
+    @GetMapping("/categories/{categoryID}")
+    public Page<Product> findByCategory(
+            Pageable pageable,
+            @PathVariable int categoryID,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestParam(defaultValue = "false") boolean lowStock,
+            @RequestParam(defaultValue = "false") boolean outOfStock
+    ) {
+        if (category != null) {
+            return productService.findByCategory(category, pageable);
+        }
+        if (!search.isEmpty()) {
+            return productService.searchProductsByName(search, pageable);
+        } else if (lowStock || outOfStock) {
+            return productService.findFilteredProducts(pageable, lowStock, outOfStock);
+        }
+        return productService.findAllByCategory(pageable, categoryID);
     }
 
 
@@ -96,6 +124,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
 }
 
 

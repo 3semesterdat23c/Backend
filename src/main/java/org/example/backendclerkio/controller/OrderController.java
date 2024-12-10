@@ -1,10 +1,8 @@
 package org.example.backendclerkio.controller;
 
-import org.example.backendclerkio.dto.ApiResponse;
-import org.example.backendclerkio.dto.CartItemRequestDTO;
-import org.example.backendclerkio.dto.CartItemResponseDTO;
-import org.example.backendclerkio.dto.UserResponseDTO;
+import org.example.backendclerkio.dto.*;
 import org.example.backendclerkio.entity.Order;
+import org.example.backendclerkio.entity.OrderProduct;
 import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.entity.User;
 import org.example.backendclerkio.service.EmailService;
@@ -15,7 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("api/v1/order")
 @RestController
@@ -43,6 +46,17 @@ public class OrderController {
         );
     }
 
+    @GetMapping("/myOrders")
+    public ResponseEntity<?> getAllOrdersForUser(Principal principal) {
+        try {
+            UserResponseDTO userResponseDTO = getCurrentUserDTO(principal);
+            List<Order> allOrders = orderService.findOrdersByUserIdAndPaidTrue(userResponseDTO.userId());
+            return ResponseEntity.ok(allOrders);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Error: " + e.getMessage()));
+        }
+    }
+
 
     @PostMapping("/cart")
     public ResponseEntity<ApiResponse> addToCart(@RequestBody CartItemRequestDTO cartItemRequestDTO, Principal principal) {
@@ -65,6 +79,7 @@ public class OrderController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteProductFromCart(Principal principal, @RequestBody CartItemResponseDTO cartItemResponseDTO) {
         try {
@@ -77,6 +92,38 @@ public class OrderController {
             return ResponseEntity.ok("Product removed from cart successfully");
         } catch (Exception e) {
             return ResponseEntity.status(400).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/checkout/{orderId}")
+    public ResponseEntity<?> checkoutOrder(@PathVariable int orderId) {
+        Optional optionalOrder = orderService.findOrderById(orderId);
+        if (optionalOrder.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Order not found."));
+        }
+        Order order = (Order) optionalOrder.get();
+        try {
+            // Step 1: Validate the Order
+            if (order == null || order.getUser() == null || order.getOrderProducts().isEmpty()) {
+                return ResponseEntity.badRequest().body("Invalid order details");
+            }
+
+            orderService.checkout(order);
+
+            emailService.sendConfirmationEmail(
+                    order.getUser().getUserEmail(),
+                    "Order Confirmation for order: " + order.getId(),
+                    buildEmailBody(order)
+            );
+
+            // Step 4: Return a Response
+            return ResponseEntity.ok("Order successfully checked out!");
+
+        } catch (Exception e) {
+            // Log the error for debugging
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while checking out the order: " + e.getMessage());
         }
     }
 
@@ -96,6 +143,95 @@ public class OrderController {
         }
     }
 
+    @PostMapping("/validatePayment")
+    public ResponseEntity<?> validatePayment(@RequestBody PaymentRequestDTO paymentRequestDTO) {
+        if (orderService.paymentIsValid(paymentRequestDTO)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Payment failed");
+        }
+    }
 
+
+
+
+
+    private String buildEmailBody(Order order) {
+        Optional<User> optionalUser = userService.findUserById(order.getUser().getUserId());
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("No user found for email");
+        }
+        User user = optionalUser.get();
+        LocalDateTime orderDateTime = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(order.getOrderDate()), // Convert milliseconds to Instant
+                ZoneOffset.ofHours(1)                      // Specify GMT+1
+        );
+
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("<h1>Hi ").append(user.getFirstName()).append(" ").append(user.getLastName()).append("</h1>")
+                .append("<h3>Your order was confirmed at ").append(orderDateTime).append("</h3>")
+                .append("<h4>Items you have ordered are listed below:</h4>")
+                .append("<table style='border-collapse: collapse; width: 100%;'>")
+                .append("<thead>")
+                .append("<tr>")
+                .append("<th style='border: 1px solid black; padding: 8px;'>Image</th>")
+                .append("<th style='border: 1px solid black; padding: 8px;'>Product</th>")
+                .append("<th style='border: 1px solid black; padding: 8px;'>Price</th>")
+                .append("<th style='border: 1px solid black; padding: 8px;'>Quantity</th>")
+                .append("<th style='border: 1px solid black; padding: 8px;'>Subtotal</th>")
+                .append("</tr>")
+                .append("</thead>")
+                .append("<tbody>");
+
+        double totalPrice = 0.0;
+
+        for (OrderProduct orderProduct : order.getOrderProducts()) {
+            double subtotal = orderProduct.getPriceAtTimeOfOrder() * orderProduct.getQuantity();
+            totalPrice += subtotal;
+
+            stringBuilder.append("<tr>")
+                    .append("<td style='border: 1px solid black; padding: 8px; text-align: center;'>")
+                    .append("<img src='").append(orderProduct.getProduct().getImages().get(0))
+                    .append("' style='width: auto; height: 50px;'>") // Maintain proportions
+                    .append("</td>")
+                    .append("<td style='border: 1px solid black; padding: 8px;'>").append(orderProduct.getProduct().getTitle()).append("</td>")
+                    .append("<td style='border: 1px solid black; padding: 8px;'>$")
+                    .append(String.format("%.2f", orderProduct.getPriceAtTimeOfOrder())).append("</td>")
+                    .append("<td style='border: 1px solid black; padding: 8px;'>").append(orderProduct.getQuantity()).append("</td>")
+                    .append("<td style='border: 1px solid black; padding: 8px;'>$")
+                    .append(String.format("%.2f", subtotal)).append("</td>")
+                    .append("</tr>");
+        }
+
+        stringBuilder.append("</tbody>")
+                .append("</table>")
+                .append("<h3 style='text-align: right;'>Total: $")
+                .append(String.format("%.2f", totalPrice)).append("</h3>");
+
+        return stringBuilder.toString();
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<?> getActiveOrder(Principal principal) {
+        try {
+            // Get the current user using Principal
+            UserResponseDTO userDTO = getCurrentUserDTO(principal);
+
+            // Find the active order for the user
+            Optional<Order> optionalOrder = orderService.findOrderByUserIdAndPaidFalse(userDTO.userId());
+
+            if (optionalOrder.isPresent()) {
+                return ResponseEntity.ok(optionalOrder.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No active order forund for the user");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 
 }
+
+
