@@ -101,29 +101,6 @@ public class UserService {
         return Optional.of(userResponseDTO);
     }
 
-    public Optional<UserResponseDTO> updatePassword(int userId, UserRequestDTO userRequestDTO) {
-        Optional<User> optionalUser = userRepository.findByUserId(userId);
-
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
-
-            User updatedUser = userRepository.save(user);
-
-            UserResponseDTO userResponseDTO = new UserResponseDTO(
-                    updatedUser.getUserId(),
-                    updatedUser.getFirstName(),
-                    updatedUser.getLastName(),
-                    updatedUser.getUserEmail(),
-                    updatedUser.isAdmin()
-            );
-
-            return Optional.of(userResponseDTO);
-        } else {
-            return Optional.empty();
-        }
-    }
-
     public void makeUserAdmin(String userMail) {
         Optional<User> optionalUser = userRepository.findByUserEmail(userMail);
         if (optionalUser.isPresent()) {
