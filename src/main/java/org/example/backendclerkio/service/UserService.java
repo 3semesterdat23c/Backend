@@ -86,13 +86,14 @@ public class UserService {
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            user.setFirstName(userRequestDTO.firstName());
-            user.setLastName(userRequestDTO.lastName());
-            user.setUserEmail(userRequestDTO.email());
+
 
             if (userRequestDTO.password()!=null){
                 user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
             }
+            else {user.setFirstName(userRequestDTO.firstName());
+                user.setLastName(userRequestDTO.lastName());
+                user.setUserEmail(userRequestDTO.email());}
 
             User updatedUser = userRepository.save(user);
 
