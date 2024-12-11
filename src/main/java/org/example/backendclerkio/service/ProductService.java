@@ -217,8 +217,8 @@ public class ProductService {
         return productRepository.findByTitleContainingIgnoreCase(title, pageable);
     }
 
-    public Page<Product> findProducts(String category, String search, boolean lowStock, boolean outOfStock, Pageable pageable) {
-        return productRepository.findProducts(category, search, lowStock, outOfStock, pageable);
+    public Page<Product> findProducts(String category, String search, boolean lowStock, boolean outOfStock, Integer minPrice, Integer maxPrice, Pageable pageable) {
+        return productRepository.findProducts(category, search, lowStock, outOfStock, minPrice, maxPrice, pageable);
     }
 }
 

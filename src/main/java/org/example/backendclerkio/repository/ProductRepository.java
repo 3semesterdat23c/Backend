@@ -19,11 +19,11 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     Page<Product> findByStockCount(int stock, Pageable pageable);
     Page<Product> findByTitleContainingIgnoreCase(String name, Pageable pageable);
 
-
-
     @Query("SELECT p FROM Product p " +
             "WHERE (:category IS NULL OR p.category.categoryName = :category) " +
             "AND (:search = '' OR LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+            "AND (:minPrice IS NULL OR p.discountPrice >= :minPrice) " + // New Filter
+            "AND (:maxPrice IS NULL OR p.discountPrice <= :maxPrice) " + // New Filter
             "AND ( " +
             "   (:lowStock = false AND :outOfStock = false) " +
             "   OR (:lowStock = true AND p.stockCount > 0 and p.stockCount <= 5) " +
@@ -34,6 +34,9 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             @Param("search") String search,
             @Param("lowStock") boolean lowStock,
             @Param("outOfStock") boolean outOfStock,
+            @Param("minPrice") Integer minPrice, // New Parameter
+            @Param("maxPrice") Integer maxPrice, // New Parameter
             Pageable pageable
     );
+
 }
