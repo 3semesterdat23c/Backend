@@ -30,9 +30,12 @@ public class ProductController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(defaultValue = "false") boolean lowStock,
-            @RequestParam(defaultValue = "false") boolean outOfStock
+            @RequestParam(defaultValue = "false") boolean outOfStock,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice
+
     ) {
-        return productService.findProducts(category, search, lowStock, outOfStock, pageable);
+        return productService.findProducts(category, search, lowStock, outOfStock, minPrice,maxPrice, pageable);
     }
 
 
