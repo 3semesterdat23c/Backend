@@ -70,16 +70,6 @@ public class UserService {
         );
     }
 
-    public boolean loginUser(LoginRequestDTO loginRequestDTO) {
-        Optional<User> optionalUser = userRepository.findByUserEmail(loginRequestDTO.email());
-
-        if (optionalUser.isPresent()) {
-            String storedHashedPassword = optionalUser.get().getPasswordHash();
-            return passwordEncoder.matches(loginRequestDTO.password(), storedHashedPassword);
-        }
-
-        return false;
-    }
 
     public Optional<UserResponseDTO> updateUser(int userId, UserRequestDTO userRequestDTO) {
         Optional<User> optionalUser = userRepository.findByUserId(userId);
