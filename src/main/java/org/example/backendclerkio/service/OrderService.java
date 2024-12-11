@@ -69,7 +69,7 @@ public class OrderService {
 
         // Determine the price at time of order
         double priceAtTimeOfOrder = product.getPrice();
-        if (product.getDiscountPrice() != null && product.getDiscountPrice() < product.getPrice()) {
+        if (product.getDiscountPrice() != 0 && product.getDiscountPrice() < product.getPrice()) {
             priceAtTimeOfOrder = product.getDiscountPrice();
         }
 
