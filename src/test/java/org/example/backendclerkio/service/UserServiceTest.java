@@ -109,4 +109,60 @@ class UserServiceTest {
         assertEquals(userRequestDTO.lastName(), userResponseDTO.lastName());
         assertFalse(userResponseDTO.isAdmin());
     }
+
+    @Test
+    void testMakeUserAdmin() {
+        System.out.println("Testing: testMakeUserAdminSuccess...");
+        String userMail = "user@mail.dk";
+        User user = new User("FirstName", "LastName", userMail, "password");
+        user.setUserId(1);
+        when(userRepository.findByUserEmail(userMail)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        userService.makeUserAdmin(userMail);
+
+        assertTrue(user.isAdmin());
+        verify(userRepository, times(1)).findByUserEmail(userMail);
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void testMakeUserAdminUserNotFound() {
+        System.out.println("Testing: testMakeUserAdminNotFound...");
+        String userMail = "nonexistent@mail.dk";
+        when(userRepository.findByUserEmail(userMail)).thenReturn(Optional.empty());
+
+        userService.makeUserAdmin(userMail);
+
+        verify(userRepository, times(1)).findByUserEmail(userMail);
+        verify(userRepository, times(0)).save(any(User.class));
+    }
+
+    @Test
+    void testDeleteUserSuccess() {
+        System.out.println("Testing: testDeleteUserSuccess...");
+        int userId = 1;
+        User user = new User("FirstName", "LastName", "user@mail.dk", "password");
+        user.setUserId(userId);
+        when(userRepository.findByUserId(userId)).thenReturn(Optional.of(user));
+
+        boolean result = userService.deleteUser(userId);
+
+        assertTrue(result);
+        verify(userRepository, times(1)).delete(user);
+        verify(userRepository, times(1)).findByUserId(userId);
+    }
+
+    @Test
+    void testDeleteUserNotFound() {
+        System.out.println("Testing: testDeleteUserNotFound...");
+        int userId = 99;
+        when(userRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        boolean result = userService.deleteUser(userId);
+
+        assertFalse(result);
+        verify(userRepository, times(0)).delete(any(User.class));
+        verify(userRepository, times(1)).findByUserId(userId);
+    }
 }
