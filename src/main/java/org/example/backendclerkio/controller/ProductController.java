@@ -30,42 +30,18 @@ public class ProductController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false, defaultValue = "") String search,
             @RequestParam(defaultValue = "false") boolean lowStock,
-            @RequestParam(defaultValue = "false") boolean outOfStock
+            @RequestParam(defaultValue = "false") boolean outOfStock,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice
+
     ) {
-        if (category != null) {
-            return productService.findByCategory(category, pageable);
-        }
-        if (!search.isEmpty()) {
-            return productService.searchProductsByName(search, pageable);
-        } else if (lowStock || outOfStock) {
-            return productService.findFilteredProducts(pageable, lowStock, outOfStock);
-        }
-        return productService.findAll(pageable);
+        return productService.findProducts(category, search, lowStock, outOfStock, minPrice,maxPrice, pageable);
     }
+
 
     @GetMapping("/list")
     public List<Product> getProductList(){
         return productService.getProductList();
-    }
-
-    @GetMapping("/categories/{categoryID}")
-    public Page<Product> findByCategory(
-            Pageable pageable,
-            @PathVariable int categoryID,
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false, defaultValue = "") String search,
-            @RequestParam(defaultValue = "false") boolean lowStock,
-            @RequestParam(defaultValue = "false") boolean outOfStock
-    ) {
-        if (category != null) {
-            return productService.findByCategory(category, pageable);
-        }
-        if (!search.isEmpty()) {
-            return productService.searchProductsByName(search, pageable);
-        } else if (lowStock || outOfStock) {
-            return productService.findFilteredProducts(pageable, lowStock, outOfStock);
-        }
-        return productService.findAllByCategory(pageable, categoryID);
     }
 
 

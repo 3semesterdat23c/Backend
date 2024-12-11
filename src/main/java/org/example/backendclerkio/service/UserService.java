@@ -70,63 +70,35 @@ public class UserService {
         );
     }
 
-    public boolean loginUser(LoginRequestDTO loginRequestDTO) {
-        Optional<User> optionalUser = userRepository.findByUserEmail(loginRequestDTO.email());
-
-        if (optionalUser.isPresent()) {
-            String storedHashedPassword = optionalUser.get().getPasswordHash();
-            return passwordEncoder.matches(loginRequestDTO.password(), storedHashedPassword);
-        }
-
-        return false;
-    }
 
     public Optional<UserResponseDTO> updateUser(int userId, UserRequestDTO userRequestDTO) {
         Optional<User> optionalUser = userRepository.findByUserId(userId);
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+        if (optionalUser.isEmpty()) {
+            return Optional.empty();
+        }
+
+        User user = optionalUser.get();
+
+        if (userRequestDTO.password() != null) {
+            user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
+        } else {
             user.setFirstName(userRequestDTO.firstName());
             user.setLastName(userRequestDTO.lastName());
             user.setUserEmail(userRequestDTO.email());
-
-            User updatedUser = userRepository.save(user);
-
-            UserResponseDTO userResponseDTO = new UserResponseDTO(
-                    updatedUser.getUserId(),
-                    updatedUser.getFirstName(),
-                    updatedUser.getLastName(),
-                    updatedUser.getUserEmail(),
-                    updatedUser.isAdmin()
-            );
-
-            return Optional.of(userResponseDTO);
-        } else {
-            return Optional.empty();
         }
-    }
 
-    public Optional<UserResponseDTO> updatePassword(int userId, UserRequestDTO userRequestDTO) {
-        Optional<User> optionalUser = userRepository.findByUserId(userId);
+        User updatedUser = userRepository.save(user);
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
+        UserResponseDTO userResponseDTO = new UserResponseDTO(
+                updatedUser.getUserId(),
+                updatedUser.getFirstName(),
+                updatedUser.getLastName(),
+                updatedUser.getUserEmail(),
+                updatedUser.isAdmin()
+        );
 
-            User updatedUser = userRepository.save(user);
-
-            UserResponseDTO userResponseDTO = new UserResponseDTO(
-                    updatedUser.getUserId(),
-                    updatedUser.getFirstName(),
-                    updatedUser.getLastName(),
-                    updatedUser.getUserEmail(),
-                    updatedUser.isAdmin()
-            );
-
-            return Optional.of(userResponseDTO);
-        } else {
-            return Optional.empty();
-        }
+        return Optional.of(userResponseDTO);
     }
 
     public void makeUserAdmin(String userMail) {
