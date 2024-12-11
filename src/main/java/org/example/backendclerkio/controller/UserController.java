@@ -111,21 +111,6 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{userId}/updatepassword")
-    public ResponseEntity<?> updatePassword(@PathVariable int userId, @RequestBody UserRequestDTO userRequestDTO) {
-        if (!userService.userExistsByUserId(userId)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("User with user ID: " + userId + " not found.");
-        }
-
-        Optional<UserResponseDTO> updatedUser = userService.updatePassword(userId, userRequestDTO);
-        if (updatedUser.isPresent()) {
-            return ResponseEntity.status(HttpStatus.OK).body(updatedUser.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to update the password. Please try again.");
-        }
-    }
 
     @PutMapping("/{userMail}/setadmin")
     public ResponseEntity<?> makeUserAdmin(@PathVariable String userMail){

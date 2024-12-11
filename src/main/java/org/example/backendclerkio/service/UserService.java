@@ -90,6 +90,10 @@ public class UserService {
             user.setLastName(userRequestDTO.lastName());
             user.setUserEmail(userRequestDTO.email());
 
+            if (userRequestDTO.password()!=null){
+                user.setPasswordHash(passwordEncoder.encode(userRequestDTO.password()));
+            }
+
             User updatedUser = userRepository.save(user);
 
             UserResponseDTO userResponseDTO = new UserResponseDTO(
