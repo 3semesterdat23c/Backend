@@ -39,8 +39,13 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .requestMatchers(
                         "/api/v1/users/register",
                         "/api/v1/users/login",
-                        "/api/v1/products/list",
-                        "/api/v1/products/{id}"
+                        "/api/v1/products",
+                        "/api/v1/products/{id}",
+                        "/api/v1/categories/{categoryID}",
+                        "/api/v1/category/categories"
+
+
+
                 ).permitAll()
 
                 // Endpoints accessible to authenticated users
@@ -48,15 +53,19 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                         "/api/v1/order/cart",
                         "/api/v1/order/checkout",
                         "/api/v1/order/validatePayment",
-                        "/api/v1/order/myOrders"
+                        "/api/v1/order/myOrders",
+                        "/api/v1/users/*/user"
+
                 ).authenticated()
 
                 // Admin-specific endpoints
                 .requestMatchers(HttpMethod.POST, "/api/v1/products/create").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/products/{id}/update").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/{id}/delete").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/products/*/update").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/*/delete").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/v1/users/{userId}/update").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/v1/users/{userId}/delete").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "api/v1/users/*/setadmin").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "api/v1/users/*/user").hasRole("ADMIN")
                 // Add more admin-specific endpoints as needed
 
                 // Any other request requires authentication
