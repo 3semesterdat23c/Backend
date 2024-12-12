@@ -196,13 +196,6 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
-    public Page<Product> findByCategory(String category, Pageable pageable) {
-        return productRepository.findProductsByCategory_CategoryName(category, pageable);
-    }
-    public Page<Product> searchProductsByName(String title, Pageable pageable) {
-        return productRepository.findByTitleContainingIgnoreCase(title, pageable);
-    }
-
     public Page<Product> findProducts(String category, String search, boolean lowStock, boolean outOfStock, Integer minPrice, Integer maxPrice, Pageable pageable) {
         return productRepository.findProducts(category, search, lowStock, outOfStock, minPrice, maxPrice, pageable);
     }
