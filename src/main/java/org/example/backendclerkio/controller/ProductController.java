@@ -32,19 +32,9 @@ public class ProductController {
             @RequestParam(defaultValue = "false") boolean lowStock,
             @RequestParam(defaultValue = "false") boolean outOfStock,
             @RequestParam(required = false) Integer minPrice,
-            @RequestParam(required = false) Integer maxPrice
-
-    ) {
+            @RequestParam(required = false) Integer maxPrice) {
         return productService.findProducts(category, search, lowStock, outOfStock, minPrice,maxPrice, pageable);
     }
-
-
-    @GetMapping("/list")
-    public List<Product> getProductList(){
-        return productService.getProductList();
-    }
-
-
 
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@RequestBody ProductRequestDTO productRequestDTO) {
@@ -100,8 +90,4 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
 }
-
-
-
