@@ -11,17 +11,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RequestMapping("api/v1/products")
 @RestController
 @CrossOrigin
 public class ProductController {
     private final ProductService productService;
+    private final CategoryService categoryService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, CategoryService categoryService) {
         this.productService = productService;
-
+        this.categoryService = categoryService;
     }
 
     @GetMapping("")
@@ -32,19 +31,9 @@ public class ProductController {
             @RequestParam(defaultValue = "false") boolean lowStock,
             @RequestParam(defaultValue = "false") boolean outOfStock,
             @RequestParam(required = false) Integer minPrice,
-            @RequestParam(required = false) Integer maxPrice
-
-    ) {
+            @RequestParam(required = false) Integer maxPrice) {
         return productService.findProducts(category, search, lowStock, outOfStock, minPrice,maxPrice, pageable);
     }
-
-
-    @GetMapping("/list")
-    public List<Product> getProductList(){
-        return productService.getProductList();
-    }
-
-
 
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(@RequestBody ProductRequestDTO productRequestDTO) {
@@ -101,7 +90,8 @@ public class ProductController {
         }
     }
 
+    @GetMapping("/categories")
+    public ResponseEntity<?> getAllCategories() {
+        return ResponseEntity.ok(categoryService.findAllCategories());
+    }
 }
-
-
-

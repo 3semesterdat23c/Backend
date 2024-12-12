@@ -3,15 +3,11 @@ package org.example.backendclerkio.config;
 
 import jakarta.annotation.PostConstruct;
 import org.example.backendclerkio.dto.ProductRequestDTO;
+import org.example.backendclerkio.dto.ProductsRequestDTO;
 import org.example.backendclerkio.dto.UserRequestDTO;
-import org.example.backendclerkio.entity.Category;
-import org.example.backendclerkio.entity.Product;
-import org.example.backendclerkio.entity.Tag;
-import org.example.backendclerkio.entity.User;
-import org.example.backendclerkio.repository.CategoryRepository;
-import org.example.backendclerkio.repository.ProductRepository;
-import org.example.backendclerkio.repository.TagRepository;
-import org.example.backendclerkio.repository.UserRepository;
+import org.example.backendclerkio.entity.*;
+import org.example.backendclerkio.repository.*;
+import org.example.backendclerkio.service.OrderService;
 import org.example.backendclerkio.service.ProductService;
 import org.example.backendclerkio.service.UserService;
 import org.springframework.context.annotation.Configuration;
@@ -28,35 +24,41 @@ public class InitData {
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
     private final ProductService productService;
-
-    //TEST
     private final UserService userService;
     private final UserRepository userRepository;
+    private final OrderService orderService;
+    private final OrderRepository orderRepository;
+    private final OrderProductRepository orderProductRepository;
 
-    public InitData(ProductRepository productRepository, CategoryRepository categoryRepository, TagRepository tagRepository, UserService userService, UserRepository userRepository, ProductService productService) {
+
+    public InitData(ProductRepository productRepository, CategoryRepository categoryRepository, TagRepository tagRepository, UserService userService, UserRepository userRepository, ProductService productService, OrderService orderService,OrderRepository orderRepository, OrderProductRepository orderProductRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.tagRepository = tagRepository;
         this.userService = userService;
         this.userRepository = userRepository;
         this.productService = productService;
+        this.orderService = orderService;
+        this.orderRepository = orderRepository;
+        this.orderProductRepository = orderProductRepository;
     }
 
     @PostConstruct
     public void init() {
 
-        //TEST
         if (userRepository.count() == 0) {
-            userService.registerUser(new UserRequestDTO("lol", "lol", "lol@lol.dk", "lol"));
-            User user = userService.findByUserEmail("lol@lol.dk").get();
-            user.setAdmin(true);
-            userRepository.save(user);
+            userService.registerUser(new UserRequestDTO("admin", "admin", "admin@admin.dk", "admin"));
+            User admin = userService.findByUserEmail("admin@admin.dk").get();
+            admin.setAdmin(true);
+            userService.registerUser(new UserRequestDTO("kunde", "kunde", "kunde@kunde.dk", "kunde"));
+            User kunde = userService.findByUserEmail("kunde@kunde.dk").get();
+            kunde.setAdmin(false);
+            userRepository.saveAll(List.of(admin, kunde));
         }
-
 
         if (productRepository.count() == 0) {
             try {
-                org.example.backendclerkio.dto.ProductsRequestDTO response = productService.getAllProducts().block();
+           ProductsRequestDTO response = productService.getAllProducts().block();
 
                 if (response != null && response.products() != null) {
                     List<Product> products = response.products().stream()
@@ -74,8 +76,25 @@ public class InitData {
             System.out.println("Database already populated with products.");
         }
 
+        Product greenChiliPepper = productRepository.findById(26).get();
+        greenChiliPepper.setDiscountPrice(0.50);
+        productRepository.save(greenChiliPepper);
 
+        Product car = productRepository.findById(170).get();
+        car.setDiscountPrice(2);
+        productRepository.save(car);
 
+        Product onions = productRepository.findById(37).get();
+        onions.setDiscountPrice(1);
+        productRepository.save(onions);
+
+        Product water = productRepository.findById(42).get();
+        water.setStockCount(3);
+        productRepository.save(water);
+
+        Product cola = productRepository.findById(39).get();
+        cola.setStockCount(0);
+        productRepository.save(cola);
     }
 
     private Product mapToEntity(ProductRequestDTO productRequestDTO) {
@@ -91,7 +110,6 @@ public class InitData {
             tags.add(tag);
         }
 
-
         Product product = new Product(
                 productRequestDTO.title(),
                 productRequestDTO.description(),
@@ -106,4 +124,3 @@ public class InitData {
         return product;
     }
 }
-

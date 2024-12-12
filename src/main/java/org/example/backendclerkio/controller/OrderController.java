@@ -3,7 +3,6 @@ package org.example.backendclerkio.controller;
 import org.example.backendclerkio.dto.*;
 import org.example.backendclerkio.entity.Order;
 import org.example.backendclerkio.entity.OrderProduct;
-import org.example.backendclerkio.entity.Product;
 import org.example.backendclerkio.entity.User;
 import org.example.backendclerkio.service.EmailService;
 import org.example.backendclerkio.service.OrderService;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
@@ -35,15 +33,9 @@ public class OrderController {
         this.emailService = emailService;
     }
 
-    private UserResponseDTO getCurrentUserDTO(Principal principal) throws Exception {
-        User user = userService.findByUsername(principal.getName());
-        return new UserResponseDTO(
-                user.getUserId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getUserEmail(),
-                user.isAdmin()
-        );
+    private UserResponseDTO getCurrentUserDTO(Principal principal) {
+        UserResponseDTO userResponseDTO = userService.getUserResponseDTOFromPrincipal(principal);
+        return userResponseDTO;
     }
 
     @GetMapping("/myOrders")
@@ -56,7 +48,6 @@ public class OrderController {
             return ResponseEntity.badRequest().body(new ApiResponse("Error: " + e.getMessage()));
         }
     }
-
 
     @PostMapping("/cart")
     public ResponseEntity<ApiResponse> addToCart(@RequestBody CartItemRequestDTO cartItemRequestDTO, Principal principal) {
@@ -103,7 +94,6 @@ public class OrderController {
         }
         Order order = (Order) optionalOrder.get();
         try {
-            // Step 1: Validate the Order
             if (order == null || order.getUser() == null || order.getOrderProducts().isEmpty()) {
                 return ResponseEntity.badRequest().body("Invalid order details");
             }
@@ -115,13 +105,9 @@ public class OrderController {
                     "Order Confirmation for order: " + order.getId(),
                     buildEmailBody(order)
             );
-
-            // Step 4: Return a Response
             return ResponseEntity.ok("Order successfully checked out!");
 
         } catch (Exception e) {
-            // Log the error for debugging
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while checking out the order: " + e.getMessage());
         }

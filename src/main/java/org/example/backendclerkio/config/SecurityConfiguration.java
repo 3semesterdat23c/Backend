@@ -17,65 +17,58 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
 public class SecurityConfiguration implements WebMvcConfigurer {
-    private JwtAuthenticationEntryPoint authenticationEntryPoint;
-    private JwtFilter filter;
-    private static PasswordEncoder passwordEncoder;
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JwtFilter filter;
+
     @Bean
     public static PasswordEncoder passwordEncoder() {
-        if(passwordEncoder==null){
-            passwordEncoder = new BCryptPasswordEncoder();
-        }
-        return passwordEncoder;
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         System.out.println("WebSec configure(HttpSecurity) Call: 2");
 
-        http.cors().and().csrf().disable() // Disable CORS and CSRF for simplicity; adjust for production
+        http.cors().and().csrf().disable()
                 .authorizeHttpRequests()
-                // Permit these endpoints for everyone
+                // Public endpoints
                 .requestMatchers(
-                        "/api/v1/products/**",
-                        "/api/v1/products/list",
-                        "/api/v1/products/categories/{categoryID}",
-                        "/api/v1/products/{id}",
-                        "/api/v1/products/create",
-                        "/api/v1/products/{id}/delete",
-                        "/api/v1/products/{id}/update",
-                        "/api/v1/users",
-                        "/api/v1/users/{userId}",
                         "/api/v1/users/register",
                         "/api/v1/users/login",
-                        "/api/v1/users/{usermail}/setadmin",
-                        "/api/v1/users/{usermail}/user",
-                        "/api/v1/users/{userId}/update",
-                        "/api/v1/users/{userId}/updatepassword",
-                        "/api/v1/users/{userId}/delete",
-                        "/api/v1/users/logout",
-                        "/api/vi/order/cart",
-                        "/api/v1/order/delete",
-                        "/api/v1/products/{id}/update/stock",
-                        "/api/v1/order/test-email",
+                        "/api/v1/products",
+                        "/api/v1/products/{id}",
+                        "/api/v1/categories/{categoryID}",
+                        "/api/v1/category/categories"
+
+
+
+                ).permitAll()
+
+                // Endpoints accessible to authenticated users
+                .requestMatchers(
+                        "/api/v1/order/cart",
                         "/api/v1/order/checkout",
                         "/api/v1/order/validatePayment",
-                        "/api/v1/order/active",
-                        "/api/v1/order/checkout",
-                        "/api/v1/order/test-email",
-                        "api/v1/category/categories",
-                        "/api/v1/order/myOrders"
-                        )
+                        "/api/v1/order/myOrders",
+                        "/api/v1/users/*/user"
 
-                .permitAll()
-                // Allow DELETE and PUT for authenticated users (no roles required)
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/{id}/delete").permitAll()
-                .requestMatchers(HttpMethod.PUT, "/api/v1/{id}/update").permitAll()
-                // Permit all other requests for now (can be refined based on needs)
+                ).authenticated()
+
+                // Admin-specific endpoints
+                .requestMatchers(HttpMethod.POST, "/api/v1/products/create").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/products/*/update").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/*/delete").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/users/{userId}/update").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/v1/users/{userId}/delete").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "api/v1/users/*/setadmin").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "api/v1/users/*/user").hasRole("ADMIN")
+                // Add more admin-specific endpoints as needed
+
+                // Any other request requires authentication
                 .anyRequest().authenticated()
                 .and()
                 .exceptionHandling()
@@ -84,8 +77,9 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        // Adding the filter before the UsernamePasswordAuthenticationFilter
+        // Adding the JWT filter
         http.addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
@@ -98,12 +92,13 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         System.out.println("addCorsMappings called");
-        registry.addMapping("/**")  // /** means match any string recursively
-                .allowedOriginPatterns("http://localhost:*",
+        registry.addMapping("/**")
+                .allowedOriginPatterns(
+                        "http://localhost:*",
                         "https://3semesterdat23c.github.io",
-                        "https://randomshop-gddudvarb6gwb7ep.westeurope-01.azurewebsites.net") //Multiple strings allowed. Wildcard * matches all port numbers.
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS") // decide which methods to allow
+                        "https://randomshop-gddudvarb6gwb7ep.westeurope-01.azurewebsites.net"
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS")
                 .allowCredentials(true);
     }
-
 }

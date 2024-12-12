@@ -64,6 +64,9 @@ public class JwtTokenManager {
             return "no user found";
         }
     }
+    public Boolean getIsAdminFromToken(String token) {
+        return getClaims(token).get("isAdmin", Boolean.class);
+    }
 
     private Claims getClaims(String token){
         try{
