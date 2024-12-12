@@ -212,6 +212,7 @@ public class ProductService {
 
     public Page<Product> findByCategory(String category, Pageable pageable) {
         return productRepository.findProductsByCategory_CategoryName(category, pageable);
+
     }
     public Page<Product> searchProductsByName(String title, Pageable pageable) {
         return productRepository.findByTitleContainingIgnoreCase(title, pageable);
