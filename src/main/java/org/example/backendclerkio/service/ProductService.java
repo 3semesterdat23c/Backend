@@ -1,6 +1,5 @@
 package org.example.backendclerkio.service;
 
-import org.example.backendclerkio.dto.ProductResponseDTO;
 import org.example.backendclerkio.dto.ProductRequestDTO;
 import org.example.backendclerkio.dto.ProductsRequestDTO;
 import org.example.backendclerkio.entity.Category;
@@ -11,7 +10,6 @@ import org.example.backendclerkio.repository.ProductRepository;
 import org.example.backendclerkio.repository.TagRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -22,9 +20,9 @@ import java.util.*;
 public class ProductService {
     private final WebClient webClient;
 
-    private ProductRepository productRepository;
-    private CategoryRepository categoryRepository;
-    private TagRepository tagRepository;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final TagRepository tagRepository;
 
     public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, TagRepository tagRepository, WebClient.Builder webClient) {
         this.productRepository = productRepository;
@@ -32,11 +30,6 @@ public class ProductService {
         this.tagRepository = tagRepository;
         this.webClient = webClient.build();
     }
-
-    public List<Product> getProductList(){
-        return productRepository.findAll();
-    }
-
 
     public Mono<ProductsRequestDTO> getProductsFromDummy() {
         return webClient.get()
@@ -80,30 +73,6 @@ public class ProductService {
     }
 
     public Page<Product> findAll(Pageable pageable){
-        return productRepository.findAll(pageable);
-    }
-
-    public Page<Product> findAllByCategory(Pageable pageable, int categoryID){
-        Optional<Category> categoryOptional = categoryRepository.findByCategoryId(categoryID);
-        Category category = new Category();
-        if (categoryOptional.isPresent()){
-        return productRepository.findAllByCategory(pageable, categoryOptional.get());}
-     return null;}
-
-
-
-    public Page<Product> findFilteredProducts(Pageable pageable, boolean lowStock, boolean outOfStock) {
-        if (lowStock && outOfStock) {
-            // Return products with stock count between 0 and 5 (inclusive)
-            return productRepository.findByStockCountBetween(0, 5, pageable);
-        } else if (lowStock) {
-            // Return products with stock count between 1 and 5 (inclusive)
-            return productRepository.findByStockCountBetween(1, 5, pageable);
-        } else if (outOfStock) {
-            // Return products with stock count of 0
-            return productRepository.findByStockCount(0, pageable);
-        }
-        // Return all products if no filters are applied
         return productRepository.findAll(pageable);
     }
 
