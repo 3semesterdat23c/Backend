@@ -28,8 +28,6 @@ public class InitData {
     private final CategoryRepository categoryRepository;
     private final TagRepository tagRepository;
     private final ProductService productService;
-
-    //TEST
     private final UserService userService;
     private final UserRepository userRepository;
 
@@ -45,14 +43,12 @@ public class InitData {
     @PostConstruct
     public void init() {
 
-        //TEST
         if (userRepository.count() == 0) {
             userService.registerUser(new UserRequestDTO("lol", "lol", "lol@lol.dk", "lol"));
             User user = userService.findByUserEmail("lol@lol.dk").get();
             user.setAdmin(true);
             userRepository.save(user);
         }
-
 
         if (productRepository.count() == 0) {
             try {
@@ -73,9 +69,6 @@ public class InitData {
         } else {
             System.out.println("Database already populated with products.");
         }
-
-
-
     }
 
     private Product mapToEntity(ProductRequestDTO productRequestDTO) {
@@ -91,7 +84,6 @@ public class InitData {
             tags.add(tag);
         }
 
-
         Product product = new Product(
                 productRequestDTO.title(),
                 productRequestDTO.description(),
@@ -106,4 +98,3 @@ public class InitData {
         return product;
     }
 }
-

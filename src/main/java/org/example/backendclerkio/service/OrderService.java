@@ -24,11 +24,7 @@ import java.util.Optional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-
-
     private final ProductRepository productRepository;
-
-
     private final OrderProductRepository orderProductRepository;
     private final UserRepository userRepository;
 
@@ -175,22 +171,19 @@ public class OrderService {
 
 
     public void checkout(Order order) {
-        order.setPaid(true); // Mark the order as paid
+        order.setPaid(true);
         order.setOrderDate(LocalDateTime.now().toInstant(ZoneOffset.ofHours(1)).toEpochMilli());
 
         for (OrderProduct orderProduct : order.getOrderProducts()) {
-            // Reduce the stock count by the quantity ordered
             Product product = orderProduct.getProduct();
             int newStockCount = product.getStockCount() - orderProduct.getQuantity();
 
-            // Ensure stock count doesn't go negative
             if (newStockCount < 0) {
                 throw new IllegalArgumentException("Insufficient stock for product: " + product.getTitle());
             }
 
             product.setStockCount(newStockCount);
         }
-
         orderRepository.save(order);
     }
 

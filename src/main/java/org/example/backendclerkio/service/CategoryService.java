@@ -16,7 +16,6 @@ public class CategoryService {
     }
 
     public List<Category> findAllCategories() {
-
         return categoryRepository.findAll(Sort.by("categoryName").ascending());
     }
 }
