@@ -35,15 +35,9 @@ public class OrderController {
         this.emailService = emailService;
     }
 
-    private UserResponseDTO getCurrentUserDTO(Principal principal) throws Exception {
-        User user = userService.findByUsername(principal.getName());
-        return new UserResponseDTO(
-                user.getUserId(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.getUserEmail(),
-                user.isAdmin()
-        );
+    private UserResponseDTO getCurrentUserDTO(Principal principal) {
+        UserResponseDTO userResponseDTO = userService.getUserResponseDTOFromPrincipal(principal);
+        return userResponseDTO;
     }
 
     @GetMapping("/myOrders")
