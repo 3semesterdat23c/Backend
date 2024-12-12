@@ -9,6 +9,7 @@ import org.example.backendclerkio.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -132,13 +133,25 @@ public class UserService {
     public boolean userExistsByUserId(int userId) {
         return userRepository.existsByUserId(userId);
     }
-    public User findByUsername(String username) throws Exception {
-        return userRepository.findByUserEmail(username)
-                .orElseThrow(() -> new Exception("User not found"));
-    }
 
     public Optional<User> findUserById(int userId){
         return userRepository.findUserByUserId(userId);
+    }
+
+    public UserResponseDTO getUserResponseDTOFromPrincipal(Principal principal) {
+        Optional<User> optionalUser = userRepository.findByUserEmail(principal.getName());
+
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("User not found");
+        } else {
+            User user = optionalUser.get();
+            return new UserResponseDTO(
+                    user.getUserId(),
+                    user.getFirstName(),
+                    user.getLastName(),
+                    user.getUserEmail(),
+                    user.isAdmin());
+        }
     }
 
 
