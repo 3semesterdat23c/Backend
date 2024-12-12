@@ -108,28 +108,19 @@ public class ProductService {
     }
 
     public Product createProduct(ProductRequestDTO productRequestDTO) {
-        // Get the category name from the DTO
         String categoryName = productRequestDTO.category();
 
-        // Check if the category exists, or create it if it doesn't
         Category category = categoryRepository.findByCategoryName(categoryName)
                 .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
 
-        // Create a set of tags
         Set<Tag> tags = new HashSet<>();
         for (String tagName : productRequestDTO.tags()) {
-            // Check if the tag already exists, if not create and save it
             Tag tag = tagRepository.findByTagName(tagName)
                     .orElseGet(() -> tagRepository.save(new Tag(tagName)));
 
-            // Add the tag to the set
             tags.add(tag);
         }
 
-
-
-
-        // Create the product with the category and tags
         Product product = new Product(
                 productRequestDTO.title(),
                 productRequestDTO.description(),
@@ -140,8 +131,6 @@ public class ProductService {
                 productRequestDTO.images(),
                 tags
         );
-
-        // Save the product to the repository
         productRepository.save(product);
 
         return product;
@@ -181,11 +170,9 @@ public class ProductService {
 
         String categoryName = productRequestDTO.category();
 
-        // Check if the category exists, or create it if it doesn't
         Category category = categoryRepository.findByCategoryName(categoryName)
                 .orElseGet(() -> categoryRepository.save(new Category(categoryName)));
 
-        // Handle tags
         Set<Tag> tags = new HashSet<>();
         for (String tagName : productRequestDTO.tags()) {
             Tag tag = tagRepository.findByTagName(tagName)
@@ -193,15 +180,14 @@ public class ProductService {
             tags.add(tag);
         }
 
-        // Set the properties for the product
         existingProduct.setTitle(productRequestDTO.title());
         existingProduct.setDescription(productRequestDTO.description());
         existingProduct.setPrice(productRequestDTO.price());
         existingProduct.setDiscountPrice(productRequestDTO.discountPrice());
         existingProduct.setStockCount(productRequestDTO.stockCount());
-        existingProduct.setCategory(category);  // Single category set here
+        existingProduct.setCategory(category);
         existingProduct.setImages(productRequestDTO.images());
-        existingProduct.setTags(tags);  // Set the tags for the product
+        existingProduct.setTags(tags);
 
         return productRepository.save(existingProduct);
     }

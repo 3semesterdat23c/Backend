@@ -51,7 +51,6 @@ public class OrderController {
         }
     }
 
-
     @PostMapping("/cart")
     public ResponseEntity<ApiResponse> addToCart(@RequestBody CartItemRequestDTO cartItemRequestDTO, Principal principal) {
         try {
@@ -97,7 +96,6 @@ public class OrderController {
         }
         Order order = (Order) optionalOrder.get();
         try {
-            // Step 1: Validate the Order
             if (order == null || order.getUser() == null || order.getOrderProducts().isEmpty()) {
                 return ResponseEntity.badRequest().body("Invalid order details");
             }
@@ -109,13 +107,9 @@ public class OrderController {
                     "Order Confirmation for order: " + order.getId(),
                     buildEmailBody(order)
             );
-
-            // Step 4: Return a Response
             return ResponseEntity.ok("Order successfully checked out!");
 
         } catch (Exception e) {
-            // Log the error for debugging
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while checking out the order: " + e.getMessage());
         }
