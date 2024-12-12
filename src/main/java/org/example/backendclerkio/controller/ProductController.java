@@ -18,10 +18,11 @@ import java.util.List;
 @CrossOrigin
 public class ProductController {
     private final ProductService productService;
+    private final CategoryService categoryService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, CategoryService categoryService) {
         this.productService = productService;
-
+        this.categoryService = categoryService;
     }
 
     @GetMapping("")
@@ -89,5 +90,10 @@ public class ProductController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<?> getAllCategories() {
+        return ResponseEntity.ok(categoryService.findAllCategories());
     }
 }
