@@ -169,6 +169,3 @@ public class ProductService {
         return productRepository.findProducts(category, search, lowStock, outOfStock, minPrice, maxPrice, pageable);
     }
 }
-
-
-
